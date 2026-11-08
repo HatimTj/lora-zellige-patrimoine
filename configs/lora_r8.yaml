@@ -1,0 +1,32 @@
+# ============================================================
+# Configuration d'entrainement LoRA - point de depart
+#
+# Une config = une experience = une ligne de results.csv.
+# Pour l'Etape 4, dupliquer ce fichier en changeant UN SEUL
+# parametre a la fois, sinon on ne sait plus ce qui a agi.
+# ============================================================
+
+nom: "lora_r8_1000pas"
+sortie: "runs/r8"
+
+lora:
+  rang: 8                  # taille de l'adaptation
+  alpha: 8                 # mise a l'echelle ; alpha = rang est le choix neutre
+  # Les quatre projections de l'attention. On ne touche pas aux convolutions :
+  # c'est la ou le style se joue, pour le moins de parametres possible.
+  modules_cibles: ["to_q", "to_k", "to_v", "to_out.0"]
+  dropout: 0.0
+
+entrainement:
+  pas: 1000                # pas d'optimisation (pas d'images vues)
+  taux_apprentissage: 0.0001
+  echauffement: 50         # pas de montee progressive du taux
+  planificateur: "cosine"
+  taille_lot: 1
+  accumulation: 4          # lot effectif = 1 x 4 = 4
+  retournement_horizontal: true    # les motifs sont symetriques : doublage gratuit
+  checkpoint_tous_les: 250 # Colab peut couper la session sans prevenir
+  graine: 1234
+
+donnees:
+  dossier: "data/processed/train"

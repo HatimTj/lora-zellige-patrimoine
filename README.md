@@ -88,15 +88,28 @@ que le modèle en sait déjà et rendrait la comparaison avant/après inexploita
 
 ## Résultats principaux
 
-> À compléter à l'Étape 4, à partir de `results/results.csv`.
+Source : `results/results.csv`. À compléter au fil des Étapes 3 et 4.
 
-| Configuration | Style (CLIP-I) | Prompt (CLIPScore) | Mémorisation | Temps | Taille |
+| Configuration | Style (DINOv2) | Prompt domaine | Prompt hors domaine | Mémorisation | Diversité |
 |---|---|---|---|---|---|
-| Baseline SD 1.5 | — | — | — | — | — |
+| **Baseline SD 1.5** | **0,274** | 34,27 | 33,14 | 0,737 | 0,646 |
+| LoRA r=8, 1000 pas | | | | | |
 | LoRA r=4 | | | | | |
-| LoRA r=8 | | | | | |
 | LoRA r=16 | | | | | |
 | LoRA r=32 | | | | | |
+
+Deux chiffres de la baseline servent de référence absolue :
+
+- **Style DINOv2 = 0,274.** Le modèle de base ne sait pas faire de zellige.
+  C'est la valeur à faire monter.
+- **Mémorisation = 0,737.** C'est le niveau du hasard : la ressemblance
+  maximale obtenue entre une image générée et une image d'entraînement que le
+  modèle n'a jamais vue. Au-delà, après entraînement, il y a suspicion de copie.
+
+L'écart entre `style_clip_moy` (0,706) et `style_dino_moy` (0,274) sur les mêmes
+images justifie l'emploi de deux mesures : CLIP sature sur « des carreaux
+colorés », DINOv2 discrimine la texture et la structure fine. **DINOv2 est donc
+la mesure de style principale du projet.**
 
 Figures attendues dans `results/figures/` :
 
@@ -128,8 +141,10 @@ python src/legender.py
 python src/generate.py --sortie results/baseline
 python src/evaluate.py --dossier results/baseline --nom baseline
 
-# Étape 3 et 4 — entraînement d'une LoRA
+# Étape 3 et 4 — entraînement d'une LoRA, puis génération et mesure
 python src/train_lora.py --config configs/lora_r8.yaml
+python src/generate.py --lora runs/r8 --intensite 1.0 --sortie results/r8
+python src/evaluate.py --dossier results/r8 --nom lora_r8_1000pas
 
 # Étape 6 — démonstration interactive
 python demo/app.py
@@ -177,8 +192,8 @@ justifié dans le rapport.
 
 - [x] **Étape 0** — Cadrage, structure du dépôt, conventions
 - [x] **Étape 1** — Jeu de données : 367 candidats → 37 retenus → 29 + 8
-- [~] **Étape 2** — Prompts figés et métriques écrites ; baseline à exécuter sur Colab
-- [ ] **Étape 3** — Première LoRA fonctionnelle
+- [x] **Étape 2** — Baseline SD 1.5 mesurée : style DINOv2 = 0,274, prompt = 34,3
+- [~] **Étape 3** — Entraînement écrit ; première LoRA à lancer sur Colab
 - [ ] **Étape 4** — Balayage rang × étapes × intensité
 - [ ] **Étape 5** — Analyse du surapprentissage
 - [ ] **Étape 6** — Démo Gradio et vidéo

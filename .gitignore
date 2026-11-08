@@ -9,7 +9,9 @@ data/processed/**/*.jpeg
 data/processed/**/*.png
 data/processed/**/*.webp
 
-# Poids de modeles
+# Poids de modeles : hors de Git (consigne du sujet).
+# Les rapports d'entrainement (runs/**/entrainement.json), eux, sont versionnes :
+# ils contiennent la courbe de perte, la duree, la VRAM et la taille du fichier.
 *.ckpt
 *.safetensors
 *.bin
@@ -17,6 +19,7 @@ data/processed/**/*.webp
 outputs/
 checkpoints/
 lora_weights/
+runs/**/checkpoint-*/
 
 # Images generees volumineuses (on ne versionne que les figures finales)
 results/**/*.png
