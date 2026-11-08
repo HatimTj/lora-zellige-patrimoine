@@ -1,0 +1,35 @@
+# ============================================================
+# Balayage de rang - Etape 4
+#
+# Les quatre configurations r4, r8, r16 et r32 ne different QUE
+# par le rang. Meme budget : 400 pas, accumulation 2, soit 800
+# passages avant/arriere, environ 10 minutes sur un T4.
+#
+# Ce budget est plus court que celui de l'Etape 3 (1000 pas,
+# accumulation 4, 49 minutes). Les quatre rangs restent donc
+# comparables entre eux, mais pas avec lora_r8_1000pas : c'est
+# volontaire et doit etre precise dans le rapport.
+# ============================================================
+
+nom: "lora_r8_400pas"
+sortie: "runs/r8_400"
+
+lora:
+  rang: 8
+  alpha: 8
+  modules_cibles: ["to_q", "to_k", "to_v", "to_out.0"]
+  dropout: 0.0
+
+entrainement:
+  pas: 400
+  taux_apprentissage: 0.0001
+  echauffement: 25
+  planificateur: "cosine"
+  taille_lot: 1
+  accumulation: 2
+  retournement_horizontal: true
+  checkpoint_tous_les: 400
+  graine: 1234
+
+donnees:
+  dossier: "data/processed/train"

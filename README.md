@@ -93,10 +93,14 @@ Source : `results/results.csv`. À compléter au fil des Étapes 3 et 4.
 | Configuration | Style (DINOv2) | Prompt domaine | Prompt hors domaine | Mémorisation | Diversité |
 |---|---|---|---|---|---|
 | **Baseline SD 1.5** | **0,274** | 34,27 | 33,14 | 0,737 | 0,646 |
-| LoRA r=8, 1000 pas | | | | | |
-| LoRA r=4 | | | | | |
-| LoRA r=16 | | | | | |
-| LoRA r=32 | | | | | |
+| **LoRA r=8, 1000 pas** | **0,339** (+23,5 %) | 34,40 | 32,94 | 0,845 | 0,597 |
+| LoRA r=4, 400 pas | | | | | |
+| LoRA r=16, 400 pas | | | | | |
+| LoRA r=32, 400 pas | | | | | |
+
+Coût de l'entraînement rang 8 : **49 min** sur T4, **4,66 Go** de VRAM,
+**1 594 368 paramètres entraînés sur 861 millions (0,19 %)**, pour un fichier
+de **6,1 Mo** contre ~4 Go pour le modèle complet.
 
 Deux chiffres de la baseline servent de référence absolue :
 
@@ -193,8 +197,8 @@ justifié dans le rapport.
 - [x] **Étape 0** — Cadrage, structure du dépôt, conventions
 - [x] **Étape 1** — Jeu de données : 367 candidats → 37 retenus → 29 + 8
 - [x] **Étape 2** — Baseline SD 1.5 mesurée : style DINOv2 = 0,274, prompt = 34,3
-- [~] **Étape 3** — Entraînement écrit ; première LoRA à lancer sur Colab
-- [ ] **Étape 4** — Balayage rang × étapes × intensité
+- [x] **Étape 3** — LoRA rang 8, 1000 pas : style DINOv2 0,274 → 0,339 (+23,5 %)
+- [~] **Étape 4** — Balayages écrits : notebooks 04 (pas, intensité) et 05 (rang)
 - [ ] **Étape 5** — Analyse du surapprentissage
 - [ ] **Étape 6** — Démo Gradio et vidéo
 - [ ] **Étape 7** — Rapport (6-8 p) et soutenance (10 min)

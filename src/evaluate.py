@@ -26,7 +26,7 @@ from common import chemin_projet, ecrire_json, info  # noqa: E402
 import metrics as M  # noqa: E402
 
 COLONNES = [
-    "nom", "lora", "intensite",
+    "nom", "lora", "intensite", "rang", "pas",
     "style_clip_moy", "style_dino_moy",          # Q1 : a-t-il appris le style
     "prompt_domaine", "prompt_transfert", "prompt_hors_domaine",   # Q2 : texte
     "duree_par_image_s", "vram_pic_go", "taille_lora_mo",          # Q3 : cout
@@ -47,6 +47,10 @@ def principal() -> None:
                          help="nom de la configuration dans results.csv")
     parseur.add_argument("--reference", default="data/processed/train",
                          help="jeu de reference pour la similarite de style")
+    parseur.add_argument("--rang", type=int, default=None,
+                         help="rang LoRA, pour tracer les courbes de l'Etape 4")
+    parseur.add_argument("--pas", type=int, default=None,
+                         help="nombre de pas d'entrainement, meme usage")
     args = parseur.parse_args()
 
     dossier = chemin_projet(args.dossier)
@@ -115,6 +119,8 @@ def principal() -> None:
         "nom": args.nom,
         "lora": manifeste.get("lora") or "aucune",
         "intensite": manifeste.get("intensite", 0.0),
+        "rang": args.rang if args.rang is not None else "",
+        "pas": args.pas if args.pas is not None else "",
         "style_clip_moy": moyenne([sim_clip["moyenne"][i] for i in indices_zellige]),
         "style_dino_moy": moyenne([sim_dino["moyenne"][i] for i in indices_zellige]),
         "prompt_domaine": par_categorie("domaine"),
@@ -138,7 +144,8 @@ def principal() -> None:
         with open(chemin_csv, encoding="utf-8") as f:
             existantes = [l for l in csv.DictReader(f) if l["nom"] != args.nom]
     with open(chemin_csv, "w", encoding="utf-8", newline="") as f:
-        redacteur = csv.DictWriter(f, fieldnames=COLONNES)
+        redacteur = csv.DictWriter(f, fieldnames=COLONNES, restval="",
+                                   extrasaction="ignore")
         redacteur.writeheader()
         redacteur.writerows(existantes + [ligne])
 
