@@ -1,0 +1,2 @@
+nom,lora,intensite,style_clip_moy,style_dino_moy,prompt_domaine,prompt_transfert,prompt_hors_domaine,duree_par_image_s,vram_pic_go,taille_lora_mo,memorisation_max_dino,image_la_plus_copiee,diversite_lpips,n_images
+baseline,aucune,0.0,0.7061,0.2741,34.2713,30.7783,33.1383,5.357,2.6132869720458984,,0.7373,D2_s2025.png ~ zlj_016.jpg,0.6464,40
