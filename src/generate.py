@@ -65,6 +65,8 @@ def principal() -> None:
     parseur.add_argument("--intensite", type=float, default=1.0,
                          help="force de la LoRA a la generation (0 = modele de base)")
     parseur.add_argument("--sortie", required=True)
+    parseur.add_argument("--rapide", action="store_true",
+                         help="une seule image, pour verifier la chaine")
     args = parseur.parse_args()
 
     cfg = charger_config(args.config)
@@ -73,6 +75,9 @@ def principal() -> None:
 
     prompts: List[Dict[str, str]] = pcfg["prompts"]
     graines: List[int] = cfg["reproductibilite"]["seeds_evaluation"]
+    if args.rapide:
+        prompts, graines = prompts[:1], graines[:1]
+        info("mode rapide : 1 prompt, 1 graine")
     gen = pcfg["generation"]
     sortie = assurer_dossier(args.sortie)
 
