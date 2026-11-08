@@ -4,13 +4,27 @@
 
 | Element | Valeur |
 |---|---|
-| Concept | Zellige marocain / motifs geometriques |
+| Concept | Zellige marocain, panneaux en couleur vus de face |
 | Source principale | Wikimedia Commons (API, licences recuperees automatiquement) |
-| Sources complementaires | Photographies de l'equipe |
-| Nombre d'images retenues | (a completer - cible 45) |
+| Candidats examines | 367 |
+| Images telechargees | 120 |
+| **Retenues apres tri manuel** | **37** |
 | Dont reservees au test de generalisation | 8 (jamais vues a l'entrainement) |
 | Resolution finale | 512 x 512 |
-| Poids total | ~15 Mo (non versionne dans Git) |
+
+### Licences des images retenues
+
+| Licence | Nombre |
+|---|---|
+| CC BY-SA 4.0 | 21 |
+| CC BY-SA 3.0 | 6 |
+| CC BY 2.0 | 5 |
+| CC BY 4.0 | 3 |
+| CC BY-SA 2.5 | 1 |
+| Public domain | 1 |
+
+Toutes sont des licences libres (CC0, CC BY, CC BY-SA). Le detail par image,
+auteur et URL compris, est dans `licenses.csv`.
 
 ## Comment regenerer le jeu
 

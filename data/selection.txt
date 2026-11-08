@@ -1,0 +1,49 @@
+# Selection manuelle - Etape 1.3
+#
+# Critere unique applique : un panneau de zellige EN COULEUR, vu de face,
+# qui occupe l'essentiel du cadre.
+#
+# Ecartes : stuc sculpte et bois incruste (autre artisanat), architecture
+# large ou le motif fait moins d'un tiers de l'image, scenes de rue et de
+# jardin, poteries, photographies en noir et blanc, et une capture d'ecran
+# de terminal (092) arrivee par le nom du logiciel "zellij".
+#
+# Une ligne = un fichier de data/raw conserve.
+
+zlj_009.jpg
+zlj_015.jpg
+zlj_016.jpg
+zlj_017.jpg
+zlj_019.jpg
+zlj_020.jpg
+zlj_021.jpg
+zlj_024.jpg
+zlj_026.jpg
+zlj_030.jpg
+zlj_031.jpg
+zlj_032.jpg
+zlj_033.jpg
+zlj_038.jpg
+zlj_040.jpg
+zlj_041.jpg
+zlj_042.jpg
+zlj_044.jpg
+zlj_051.jpg
+zlj_054.jpg
+zlj_056.jpg
+zlj_058.jpg
+zlj_061.jpg
+zlj_075.jpg
+zlj_077.jpg
+zlj_078.jpg
+zlj_081.jpg
+zlj_085.jpg
+zlj_086.jpg
+zlj_089.jpg
+zlj_094.jpg
+zlj_105.jpg
+zlj_108.jpg
+zlj_117.jpg
+zlj_118.jpg
+zlj_119.jpg
+zlj_120.jpg

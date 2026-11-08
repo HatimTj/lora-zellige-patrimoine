@@ -28,9 +28,33 @@ donnees:
   source_principale: "wikimedia_commons"
   sources_complementaires: ["photos_equipe"]
   n_images_cible: 45
+  n_candidats_telecharges: 120   # vivier brut, trie ensuite a la main
   n_images_holdout: 8           # jamais vues : test de generalisation
   taille_image: 512
   fichier_licences: "data/licenses.csv"
+
+  # Requetes de recherche sur Wikimedia Commons (namespace fichiers)
+  requetes:
+    - "zellige"
+    - "zellij"
+    - "zellige Morocco"
+    - "Moroccan tilework"
+    - "Moroccan zellij mosaic"
+    - "Moorish tile pattern"
+    - "zellij panel"
+    - "zellige wall"
+    - "Moroccan mosaic tile panel"
+    - "zellij geometric pattern"
+  # Categories Commons fouillees en complement
+  categories:
+    - "Zellige"
+    - "Tile mosaics in Morocco"
+  # Licences acceptees : le nom court renvoye par l'API doit contenir
+  # l'une de ces chaines. NC et ND sont rejetees.
+  licences_acceptees: ["CC0", "Public domain", "CC BY", "CC BY-SA"]
+  licences_interdites: ["NC", "ND"]
+  largeur_telechargement: 1024
+  taille_min_source: 400       # on ignore les images sources trop petites
 
 reproductibilite:
   seeds_evaluation: [1234, 2025, 777, 42]
