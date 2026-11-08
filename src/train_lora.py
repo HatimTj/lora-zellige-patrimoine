@@ -36,8 +36,8 @@ from torch.utils.data import DataLoader, Dataset
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import (assurer_dossier, charger_config, chemin_projet,  # noqa: E402
-                    ecrire_json, fixer_graine, info, reinitialiser_vram,
-                    taille_fichier_mo, vram_pic_go)
+                    ecrire_json, fixer_graine, info, neutraliser_torchao,
+                    reinitialiser_vram, taille_fichier_mo, vram_pic_go)
 
 
 # --------------------------------------------------------------------------
@@ -85,6 +85,7 @@ class JeuZellige(Dataset):
 
 def brancher_lora(unet, clora: Dict[str, Any]) -> List[torch.nn.Parameter]:
     """Ajoute les matrices LoRA au U-Net et renvoie les parametres entrainables."""
+    neutraliser_torchao()
     from peft import LoraConfig
 
     config = LoraConfig(

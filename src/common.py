@@ -169,6 +169,53 @@ def taille_fichier_mo(chemin: str | Path) -> float:
 
 
 # --------------------------------------------------------------------------
+# Compatibilite des bibliotheques
+# --------------------------------------------------------------------------
+
+def neutraliser_torchao() -> bool:
+    """Desamorce l'incompatibilite entre peft et le torchao preinstalle sur Colab.
+
+    Pour brancher une LoRA, peft essaie successivement plusieurs "dispatchers"
+    selon le type de couche rencontree. L'un d'eux interroge torchao. Quand la
+    version installee est plus ancienne que ce que peft exige, cette fonction
+    leve une ImportError au lieu de repondre simplement "non disponible", et
+    tout le branchement echoue :
+
+        ImportError: Found an incompatible version of torchao.
+        Found version 0.10.0, but only versions above 0.16.0 are supported
+
+    Le projet n'utilise pas torchao -- c'est une bibliotheque de quantification
+    sans rapport avec notre entrainement. On force donc la reponse a "non
+    disponible", ce qui fait passer peft au dispatcher suivant, le bon.
+
+    Renvoie True si une neutralisation a ete necessaire.
+    """
+    import importlib.util
+    if importlib.util.find_spec("torchao") is None:
+        return False                       # absent : peft repondra False de lui-meme
+    try:
+        import peft.import_utils as utils
+    except ImportError:
+        return False
+    try:
+        utils.is_torchao_available()
+        return False                       # versions compatibles, rien a faire
+    except ImportError:
+        pass
+
+    utils.is_torchao_available = lambda: False
+    # Le dispatcher a importe la fonction dans son propre espace de noms :
+    # corriger uniquement peft.import_utils ne suffirait pas.
+    try:
+        import peft.tuners.lora.torchao as dispatcher
+        dispatcher.is_torchao_available = lambda: False
+    except ImportError:
+        pass
+    info("torchao incompatible avec peft : verification neutralisee")
+    return True
+
+
+# --------------------------------------------------------------------------
 # Journalisation des runs
 # --------------------------------------------------------------------------
 

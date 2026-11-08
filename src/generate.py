@@ -25,8 +25,8 @@ import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import (assurer_dossier, charger_config, chemin_projet,  # noqa: E402
-                    ecrire_json, fixer_graine, info, mesurer, reinitialiser_vram,
-                    taille_fichier_mo, vram_pic_go)
+                    ecrire_json, fixer_graine, info, mesurer, neutraliser_torchao,
+                    reinitialiser_vram, taille_fichier_mo, vram_pic_go)
 
 
 def charger_pipeline(cfg: Dict[str, Any], lora: str | None):
@@ -49,6 +49,7 @@ def charger_pipeline(cfg: Dict[str, Any], lora: str | None):
     pipe.set_progress_bar_config(disable=True)
 
     if lora:
+        neutraliser_torchao()      # load_lora_weights passe par les memes dispatchers
         chemin = chemin_projet(lora)
         info(f"chargement de la LoRA : {chemin}")
         pipe.load_lora_weights(str(chemin))
