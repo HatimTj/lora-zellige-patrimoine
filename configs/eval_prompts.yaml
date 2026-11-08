@@ -1,0 +1,61 @@
+# ============================================================
+# Prompts d'evaluation - FIGES AVANT TOUT ENTRAINEMENT
+#
+# Ne jamais ajouter, retirer ni reformuler un prompt apres avoir
+# vu des resultats : toute comparaison avant/apres perdrait sa
+# valeur. Si un prompt doit changer, le dire dans le rapport et
+# refaire TOUTES les mesures.
+#
+# Date de gel : 2026-11-08
+# ============================================================
+
+negatif: ""        # pas de prompt negatif : on mesure le modele brut
+
+prompts:
+
+  # --- Dans le domaine (4) ------------------------------------
+  # Le modele doit produire du zellige. Mesure la fidelite au style.
+  - id: D1
+    categorie: domaine
+    texte: "a zlj_style tile panel, blue and white, one large rosette filling the frame"
+  - id: D2
+    categorie: domaine
+    texte: "a zlj_style tile panel, green and ochre, allover interlacing eight-pointed stars"
+  - id: D3
+    categorie: domaine
+    texte: "a zlj_style tiled wall, red and yellow, repeating small star rosettes"
+  - id: D4
+    categorie: domaine
+    texte: "a zlj_style tiled fountain wall, turquoise and white, a central medallion"
+
+  # --- Transfert (3) ------------------------------------------
+  # Le style applique a un objet absent du jeu d'entrainement.
+  # Mesure si le modele a appris un STYLE ou s'il recopie des panneaux.
+  - id: T1
+    categorie: transfert
+    texte: "a zlj_style pattern on a modern ceramic coffee cup, studio photo, white background"
+  - id: T2
+    categorie: transfert
+    texte: "a zlj_style pattern printed on a skateboard deck, product photo"
+  - id: T3
+    categorie: transfert
+    texte: "a zlj_style geometric pattern as a flat laptop wallpaper"
+
+  # --- Hors domaine (3) ---------------------------------------
+  # Aucun rapport avec le zellige, et PAS de token declencheur.
+  # Mesure ce que la LoRA a casse dans le modele de base.
+  - id: H1
+    categorie: hors_domaine
+    texte: "a photograph of a golden retriever running in a park"
+  - id: H2
+    categorie: hors_domaine
+    texte: "a bowl of fresh strawberries on a wooden table"
+  - id: H3
+    categorie: hors_domaine
+    texte: "a city street at night in the rain, cinematic"
+
+# 10 prompts x 4 graines = 40 images par configuration evaluee.
+generation:
+  etapes_debruitage: 30
+  guidance: 7.5
+  taille: 512

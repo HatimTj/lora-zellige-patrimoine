@@ -117,17 +117,19 @@ Puis, dans l'ordre des étapes :
 
 ```bash
 # Étape 1 — collecte des images et de leurs licences
-python src/collect_wikimedia.py --config configs/base.yaml
-python src/prepare_data.py      --config configs/base.yaml
+python src/collect_wikimedia.py --limite 120
+python src/planche_contact.py          # planche pour le tri visuel
+python src/prepare_data.py
 
-# Étape 2 — baseline du modèle non modifié
-python src/generate.py --config configs/base.yaml --lora none --out results/baseline
+# Étape 1 — légendes
+python src/legender.py
+
+# Étape 2 — baseline du modèle non modifié, puis mesures
+python src/generate.py --sortie results/baseline
+python src/evaluate.py --dossier results/baseline --nom baseline
 
 # Étape 3 et 4 — entraînement d'une LoRA
 python src/train_lora.py --config configs/lora_r8.yaml
-
-# Étape 4 — évaluation complète, écrit results/results.csv
-python src/evaluate.py --config configs/base.yaml
 
 # Étape 6 — démonstration interactive
 python demo/app.py
@@ -174,8 +176,8 @@ justifié dans le rapport.
 ## Avancement
 
 - [x] **Étape 0** — Cadrage, structure du dépôt, conventions
-- [ ] **Étape 1** — Jeu de données : collecte, licences, légendes
-- [ ] **Étape 2** — Baseline SD 1.5 et implémentation des métriques
+- [x] **Étape 1** — Jeu de données : 367 candidats → 37 retenus → 29 + 8
+- [~] **Étape 2** — Prompts figés et métriques écrites ; baseline à exécuter sur Colab
 - [ ] **Étape 3** — Première LoRA fonctionnelle
 - [ ] **Étape 4** — Balayage rang × étapes × intensité
 - [ ] **Étape 5** — Analyse du surapprentissage

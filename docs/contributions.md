@@ -13,23 +13,23 @@ Equipe : **Hatim Tajimi**, **Houssam El Moutaqui**, **Saad Belekbira**.
 | Fait | Tache | Livrable |
 |---|---|---|
 | x | Cadrage, arborescence, conventions | `README.md`, `configs/base.yaml` |
-| | Socle commun : lecture de config, seeds, mesure VRAM et temps | `src/common.py` |
+| | x Socle commun : lecture de config, seeds, mesure VRAM et temps | `src/common.py` |
 
 ### Etape 1 - Jeu de donnees
 
 | Fait | Tache | Livrable |
 |---|---|---|
-| | Collecte Wikimedia Commons + licences automatiques | `src/collect_wikimedia.py`, `data/licenses.csv` |
-| | Tri manuel des images (inclusion / exclusion) | `data/README.md` complete |
-| | Pretraitement 512x512 + dedoublonnage perceptuel | `src/prepare_data.py` |
-| | Legendes : brouillon BLIP puis relecture manuelle | `data/metadata.jsonl` |
-| | Les 10 prompts d'evaluation, figes avant tout entrainement | `configs/eval_prompts.yaml` |
+| | x Collecte Wikimedia Commons + licences automatiques | `src/collect_wikimedia.py`, `data/licenses.csv` |
+| | x Tri manuel des images (inclusion / exclusion) | `data/README.md` complete |
+| | x Pretraitement 512x512 + dedoublonnage perceptuel | `src/prepare_data.py` |
+| | x Legendes : brouillon BLIP puis relecture manuelle | `data/metadata.jsonl` |
+| | x Les 10 prompts d'evaluation, figes avant tout entrainement | `configs/eval_prompts.yaml` |
 
 ### Etape 2 - Baseline et metriques
 
 | Fait | Tache | Livrable |
 |---|---|---|
-| | Metriques : CLIPScore, CLIP-I, DINOv2, LPIPS | `src/metrics.py` |
+| | x Metriques : CLIPScore, CLIP-I, DINOv2, LPIPS | `src/metrics.py` |
 | | Baseline : SD 1.5 non modifie sur les 10 prompts | `results/baseline/` |
 
 ### Etape 3 - Premiere LoRA
