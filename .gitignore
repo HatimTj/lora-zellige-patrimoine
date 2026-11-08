@@ -21,6 +21,12 @@ checkpoints/
 lora_weights/
 runs/**/checkpoint-*/
 
+# Artefacts du test rapide de l'Etape 3 : ils valident la chaine, ils ne
+# documentent rien. Les garder hors de Git evite aussi que le depot bouge
+# sous les pieds d'une session Colab au moment du rebase.
+runs/test/
+results/test_rapide/
+
 # Images generees volumineuses (on ne versionne que les figures finales)
 results/**/*.png
 results/**/*.jpg
