@@ -85,15 +85,12 @@ python demo/app.py
 
 ## Equipe
 
-| Membre | Role principal | Etapes pilotees |
-|---|---|---|
-| Hatim Tajimi | Donnees, licences et legendes | 1, et volet ethique de 7 |
-| Houssam El Moutaqui | Entrainement LoRA et experiences | 3, 4 |
-| Saad Belekbira | Metriques, evaluation et demo | 2, 5, 6 |
+- Hatim Tajimi
+- Houssam El Moutaqui
+- Saad Belekbira
 
-Chaque membre pilote ses etapes (il ouvre l'issue, ecrit le code, commite) mais
-les trois relisent et signent le rapport de l'Etape 7. La repartition detaillee
-est dans `docs/contributions.md`.
+La repartition des taches sera presentee a la soutenance. La feuille de route et
+les dependances entre taches sont dans `docs/contributions.md`.
 
 ## Licence
 

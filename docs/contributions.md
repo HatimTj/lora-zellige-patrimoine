@@ -1,48 +1,101 @@
-# Repartition des taches
+# Feuille de route et taches
 
 Equipe : **Hatim Tajimi**, **Houssam El Moutaqui**, **Saad Belekbira**.
 
-Regle de travail : une issue GitHub par ligne du tableau ci-dessous, assignee a
-une personne. Le code d'une tache est commite par la personne assignee, pour que
-la contribution soit visible dans l'historique Git (consigne du sujet).
+> La repartition nominative des taches sera arretee plus tard et presentee a la
+> soutenance. Ce document sert pour l'instant de feuille de route : une ligne =
+> une tache = une issue GitHub, assignee au moment ou elle est prise.
 
-## Tableau des taches
+## Taches par etape
 
-| # | Tache | Livrable | Assigne a | Etape |
-|---|---|---|---|---|
-| 1 | Collecte Wikimedia Commons + licences | `src/collect_wikimedia.py`, `data/licenses.csv` | Hatim | 1 |
-| 2 | Tri manuel des images (inclusion/exclusion) | `data/README.md` complete | Hatim | 1 |
-| 3 | Pretraitement 512x512 + dedoublonnage | `src/prepare_data.py` | Hatim | 1 |
-| 4 | Legendes (brouillon BLIP puis relecture) | `data/metadata.jsonl` | Hatim | 1 |
-| 5 | Les 10 prompts d'evaluation figes | `configs/eval_prompts.yaml` | Saad | 1 |
-| 6 | Implementation des metriques | `src/metrics.py` | Saad | 2 |
-| 7 | Baseline SD 1.5 non modifie | `results/baseline/` | Saad | 2 |
-| 8 | Script d'entrainement LoRA | `src/train_lora.py` | Houssam | 3 |
-| 9 | Premiere LoRA fonctionnelle (r=8) | `notebooks/03_lora_train.ipynb` | Houssam | 3 |
-| 10 | Balayage des rangs 4/8/16/32 | `results/results.csv` | Houssam | 4 |
-| 11 | Balayage du nombre d'etapes | `results/results.csv` | Houssam | 4 |
-| 12 | Balayage de l'intensite LoRA | `results/results.csv` | Saad | 4 |
-| 13 | Figures : compromis, grille, intensite | `results/figures/` | Saad | 4 |
-| 14 | Test de memorisation (plus proche voisin) | `src/overfit_check.py` | Saad | 5 |
-| 15 | Test de degradation hors domaine | `results/figures/` | Houssam | 5 |
-| 16 | Application Gradio | `demo/app.py` | Saad | 6 |
-| 17 | Video de demonstration (60-90 s) | `demo/demo.mp4` | Houssam | 6 |
-| 18 | Fiche du modele | `docs/model_card.md` | Houssam | 7 |
-| 19 | Reflexion ethique et licences | `docs/ethics.md` | Hatim | 7 |
-| 20 | Rapport 6-8 pages | `report/rapport.pdf` | Les trois | 7 |
-| 21 | Support de soutenance (10 min) | `report/soutenance.pdf` | Les trois | 7 |
+### Etape 0 - Cadrage
+
+| Fait | Tache | Livrable |
+|---|---|---|
+| x | Cadrage, arborescence, conventions | `README.md`, `configs/base.yaml` |
+| | Socle commun : lecture de config, seeds, mesure VRAM et temps | `src/common.py` |
+
+### Etape 1 - Jeu de donnees
+
+| Fait | Tache | Livrable |
+|---|---|---|
+| | Collecte Wikimedia Commons + licences automatiques | `src/collect_wikimedia.py`, `data/licenses.csv` |
+| | Tri manuel des images (inclusion / exclusion) | `data/README.md` complete |
+| | Pretraitement 512x512 + dedoublonnage perceptuel | `src/prepare_data.py` |
+| | Legendes : brouillon BLIP puis relecture manuelle | `data/metadata.jsonl` |
+| | Les 10 prompts d'evaluation, figes avant tout entrainement | `configs/eval_prompts.yaml` |
+
+### Etape 2 - Baseline et metriques
+
+| Fait | Tache | Livrable |
+|---|---|---|
+| | Metriques : CLIPScore, CLIP-I, DINOv2, LPIPS | `src/metrics.py` |
+| | Baseline : SD 1.5 non modifie sur les 10 prompts | `results/baseline/` |
+
+### Etape 3 - Premiere LoRA
+
+| Fait | Tache | Livrable |
+|---|---|---|
+| | Script d'entrainement LoRA | `src/train_lora.py` |
+| | Premiere LoRA fonctionnelle (rang 8, 1000 pas) | `notebooks/03_lora_train.ipynb` |
+
+### Etape 4 - Experiences
+
+| Fait | Tache | Livrable |
+|---|---|---|
+| | Balayage des rangs 4 / 8 / 16 / 32 | lignes dans `results/results.csv` |
+| | Balayage du nombre d'etapes 250 / 500 / 1000 / 2000 | lignes dans `results/results.csv` |
+| | Balayage de l'intensite LoRA (0 a 1,25) | lignes dans `results/results.csv` |
+| | Les 4 figures du rapport | `results/figures/` |
+
+### Etape 5 - Surapprentissage
+
+| Fait | Tache | Livrable |
+|---|---|---|
+| | Test de memorisation (plus proche voisin) | `src/overfit_check.py` |
+| | Test de degradation hors domaine | `results/figures/hors_domaine.png` |
+
+### Etape 6 - Demo
+
+| Fait | Tache | Livrable |
+|---|---|---|
+| | Application Gradio (prompt + slider d'intensite + avant/apres) | `demo/app.py` |
+| | Video de demonstration (60-90 s) | `demo/demo.mp4` |
+
+### Etape 7 - Rapport et soutenance
+
+| Fait | Tache | Livrable |
+|---|---|---|
+| | Fiche du modele | `docs/model_card.md` |
+| | Reflexion ethique et verification des licences | `docs/ethics.md` |
+| | Rapport 6-8 pages | `report/rapport.pdf` |
+| | Support de soutenance | `report/soutenance.pdf` |
+
+## Ordre des dependances
+
+Ce qui bloque quoi, pour ne pas attendre inutilement :
+
+```
+Socle commun          ->  tous les autres scripts
+Collecte + tri        ->  pretraitement  ->  legendes  ->  entrainement
+Metriques + prompts    ->  baseline  ->  comparaisons de l'Etape 4
+Balayages (Etape 4)   ->  figures
+```
+
+Les metriques et les 10 prompts ne dependent d'**aucune image** : ils peuvent
+etre ecrits en parallele de la collecte.
 
 ## Decoupage de la soutenance (10 min)
 
-| Temps | Contenu | Qui |
-|---|---|---|
-| 1 min | Probleme et objectif | Hatim |
-| 1 min | Donnees, licences, legendes | Hatim |
-| 2 min | LoRA : principe, rang, protocole | Houssam |
-| 3 min | Resultats : compromis et figures | Saad |
-| 1 min | Demo (video) | Saad |
-| 1 min | Surapprentissage et limites | Houssam |
-| 1 min | Ethique et conclusion | Hatim |
+| Temps | Contenu |
+|---|---|
+| 1 min | Probleme et objectif |
+| 1 min | Donnees, licences, legendes |
+| 2 min | LoRA : principe, rang, protocole |
+| 3 min | Resultats : compromis et figures |
+| 1 min | Demo (video) |
+| 1 min | Surapprentissage et limites |
+| 1 min | Ethique et conclusion |
 
 ## Convention de commits
 
@@ -53,4 +106,4 @@ Exemples :
 - `etape4: corriger le calcul de CLIPScore sur les prompts hors domaine`
 
 Un commit par tache terminee, au minimum. Le depot doit montrer une activite
-hebdomadaire reguliere, pas un depot massif la derniere semaine.
+hebdomadaire reguliere.
