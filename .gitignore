@@ -27,6 +27,9 @@ runs/**/checkpoint-*/
 runs/test/
 results/test_rapide/
 
+# Archives de poids preparees pour etre televersees dans Colab
+*.zip
+
 # Images generees volumineuses (on ne versionne que les figures finales)
 results/**/*.png
 results/**/*.jpg
