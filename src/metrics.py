@@ -66,18 +66,31 @@ def _clip():
 
 @torch.no_grad()
 def vecteurs_clip_image(images: Sequence[Image.Image]) -> torch.Tensor:
+    """Vecteurs CLIP des images, normalises, dans l'espace partage avec le texte.
+
+    On passe explicitement par vision_model puis visual_projection au lieu de
+    get_image_features : selon la version de transformers, cette methode
+    renvoie soit un tenseur, soit un objet BaseModelOutputWithPooling, et le
+    code casse sur l'une des deux. Le chemin explicite est stable.
+    La projection est indispensable : sans elle on reste en dimension 768,
+    alors que le texte sort en 512, et le produit scalaire est impossible.
+    """
     modele, processeur = _clip()
     entrees = processeur(images=list(images), return_tensors="pt").to(appareil_torch())
-    v = modele.get_image_features(**entrees)
+    sortie = modele.vision_model(pixel_values=entrees["pixel_values"])
+    v = modele.visual_projection(sortie.pooler_output)
     return torch.nn.functional.normalize(v, dim=-1)
 
 
 @torch.no_grad()
 def vecteurs_clip_texte(textes: Sequence[str]) -> torch.Tensor:
+    """Vecteurs CLIP des textes, normalises, meme espace que les images."""
     modele, processeur = _clip()
     entrees = processeur(text=list(textes), return_tensors="pt",
                          padding=True, truncation=True).to(appareil_torch())
-    v = modele.get_text_features(**entrees)
+    sortie = modele.text_model(input_ids=entrees["input_ids"],
+                               attention_mask=entrees.get("attention_mask"))
+    v = modele.text_projection(sortie.pooler_output)
     return torch.nn.functional.normalize(v, dim=-1)
 
 
@@ -108,8 +121,12 @@ def _dino():
 def vecteurs_dino(images: Sequence[Image.Image]) -> torch.Tensor:
     modele, processeur = _dino()
     entrees = processeur(images=list(images), return_tensors="pt").to(appareil_torch())
-    sortie = modele(**entrees).last_hidden_state[:, 0]      # jeton CLS
-    return torch.nn.functional.normalize(sortie, dim=-1)
+    sortie = modele(pixel_values=entrees["pixel_values"])
+    # pooler_output quand il existe, sinon le jeton CLS du dernier etat cache
+    v = getattr(sortie, "pooler_output", None)
+    if v is None:
+        v = sortie.last_hidden_state[:, 0]
+    return torch.nn.functional.normalize(v, dim=-1)
 
 
 # --------------------------------------------------------------------------
@@ -183,7 +200,12 @@ if __name__ == "__main__":
             if (x // 28 + y // 28) % 2 == 0:
                 d.rectangle([x, y, x + 28, y + 28], fill="black")
 
-    print("CLIPScore (doit etre eleve sur la diagonale) :")
+    vi = vecteurs_clip_image([rouge])
+    vt = vecteurs_clip_texte(["un test"])
+    print(f"dimensions : image {tuple(vi.shape)}, texte {tuple(vt.shape)}")
+    assert vi.shape[1] == vt.shape[1], "espaces image et texte incompatibles"
+
+    print("\nCLIPScore (doit etre eleve sur la diagonale) :")
     for texte in ["a solid red image", "a solid blue image",
                   "a black and white checkerboard"]:
         scores = clipscore([rouge, bleu, damier], [texte] * 3)

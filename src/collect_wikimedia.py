@@ -46,7 +46,7 @@ ENTETES = {
 MIMES_ACCEPTES = {"image/jpeg", "image/png", "image/webp"}
 
 # Pause entre deux appels API : Commons renvoie HTTP 429 si on va trop vite.
-PAUSE_API = 1.0
+PAUSE_API = 1.5
 
 
 def _contexte_ssl() -> "ssl.SSLContext":
@@ -75,7 +75,7 @@ COLONNES_CSV = [
 # Appels API
 # --------------------------------------------------------------------------
 
-def appeler_api(parametres: Dict[str, str], essais: int = 4) -> Dict[str, Any]:
+def appeler_api(parametres: Dict[str, str], essais: int = 6) -> Dict[str, Any]:
     """Appelle l'API Commons et renvoie le JSON decode.
 
     Commons limite le debit : en cas de HTTP 429, on attend de plus en plus
@@ -83,7 +83,7 @@ def appeler_api(parametres: Dict[str, str], essais: int = 4) -> Dict[str, Any]:
     """
     parametres = {**parametres, "format": "json", "formatversion": "2"}
     url = f"{API}?{urllib.parse.urlencode(parametres)}"
-    attente = 1.0
+    attente = 5.0
     for essai in range(essais):
         requete = urllib.request.Request(url, headers=ENTETES)
         try:
@@ -91,9 +91,13 @@ def appeler_api(parametres: Dict[str, str], essais: int = 4) -> Dict[str, Any]:
                 return json.loads(reponse.read().decode("utf-8"))
         except urllib.error.HTTPError as e:
             if e.code in (429, 503) and essai < essais - 1:
-                info(f"API saturee (HTTP {e.code}), nouvelle tentative dans {attente:.0f} s")
-                time.sleep(attente)
-                attente *= 2
+                # Commons indique parfois lui-meme combien de temps attendre
+                conseil = e.headers.get("Retry-After") if e.headers else None
+                pause = float(conseil) if conseil and conseil.isdigit() else attente
+                info(f"API saturee (HTTP {e.code}), nouvelle tentative dans {pause:.0f} s "
+                     f"(essai {essai + 1}/{essais})")
+                time.sleep(pause)
+                attente = min(attente * 2, 120)
                 continue
             raise
     raise RuntimeError("API Commons injoignable apres plusieurs tentatives")
@@ -116,7 +120,11 @@ def chercher(requete: str, par_page: int = 50, pages_max: int = 2,
             "gsrlimit": str(par_page), "iiurlwidth": str(largeur),
             **PROPS_IMAGE, **suite,
         }
-        data = appeler_api(params)
+        try:
+            data = appeler_api(params)
+        except Exception as e:
+            info(f"recherche '{requete}' interrompue : {e}")
+            return resultats          # on garde ce qui a deja ete trouve
         resultats.extend((data.get("query") or {}).get("pages") or [])
         if "continue" not in data:
             break
@@ -333,6 +341,84 @@ def extension_reelle(contenu: bytes) -> Optional[str]:
 
 
 # --------------------------------------------------------------------------
+# Reconstruction a l'identique
+# --------------------------------------------------------------------------
+
+def reconstruire(cfg_donnees: Dict[str, Any], dossier_brut: Path,
+                 seulement_selection: bool = True) -> int:
+    """Re-telecharge exactement les fichiers deja enregistres dans licenses.csv.
+
+    Pourquoi ce mode existe : en mode recherche, le nom zlj_NNN.jpg depend de
+    l'ORDRE des resultats et des telechargements reussis. Si une requete echoue
+    (API saturee) ou si Commons publie de nouvelles images, la numerotation se
+    decale -- et data/selection.txt, qui designe les images par leur numero,
+    ne pointe plus sur les bonnes images.
+
+    Ici on part de licenses.csv, qui associe chaque nom de fichier au titre
+    Commons d'origine. On interroge l'API par titres exacts, donc le resultat
+    est identique a chaque execution, quel que soit l'etat de Commons.
+    En prime c'est beaucoup plus rapide : une poignee d'appels au lieu de
+    plusieurs dizaines, donc bien moins de risque d'etre limite.
+    """
+    chemin_csv = chemin_projet(cfg_donnees["fichier_licences"])
+    if not chemin_csv.exists():
+        info(f"{chemin_csv} absent : impossible de reconstruire")
+        return 0
+
+    with open(chemin_csv, encoding="utf-8") as f:
+        voulus = {l["fichier"]: l["titre_original"]
+                  for l in csv.DictReader(f)
+                  if l["conserve"] == "oui" and l["fichier"]}
+
+    chemin_selection = chemin_projet("data/selection.txt")
+    if seulement_selection and chemin_selection.exists():
+        gardes = {l.split("#")[0].strip()
+                  for l in chemin_selection.read_text(encoding="utf-8").splitlines()}
+        voulus = {k: v for k, v in voulus.items() if k in gardes}
+        info(f"reconstruction limitee a la selection : {len(voulus)} fichiers")
+    else:
+        info(f"reconstruction de {len(voulus)} fichiers")
+
+    largeur = cfg_donnees.get("largeur_telechargement", 1024)
+    par_titre = {f"File:{titre}": nom for nom, titre in voulus.items()}
+    titres = sorted(par_titre)
+    obtenus = 0
+
+    # L'API accepte jusqu'a 50 titres par appel
+    for debut in range(0, len(titres), 50):
+        lot = titres[debut:debut + 50]
+        data = appeler_api({
+            "action": "query", "titles": "|".join(lot),
+            "iiurlwidth": str(largeur), **PROPS_IMAGE,
+        })
+        for page in (data.get("query") or {}).get("pages") or []:
+            nom = par_titre.get(page.get("title", ""))
+            infos = (page.get("imageinfo") or [{}])[0]
+            if not nom or not infos:
+                info(f"introuvable sur Commons : {page.get('title')}")
+                continue
+            destination = dossier_brut / nom
+            if destination.exists():
+                obtenus += 1
+                continue
+            contenu = telecharger(infos.get("thumburl") or infos.get("url"))
+            if contenu is None:
+                continue
+            destination.write_bytes(contenu)
+            obtenus += 1
+            if obtenus % 10 == 0:
+                info(f"{obtenus}/{len(voulus)} fichiers")
+            time.sleep(0.4)
+        time.sleep(PAUSE_API)
+
+    manquants = [n for n in voulus if not (dossier_brut / n).exists()]
+    info(f"{obtenus}/{len(voulus)} fichiers reconstruits dans {dossier_brut}")
+    if manquants:
+        info(f"MANQUANTS ({len(manquants)}) : " + ", ".join(manquants[:10]))
+    return obtenus
+
+
+# --------------------------------------------------------------------------
 # Programme principal
 # --------------------------------------------------------------------------
 
@@ -343,6 +429,9 @@ def principal() -> None:
                          help="nombre d'images a conserver (defaut : config)")
     parseur.add_argument("--simulation", action="store_true",
                          help="affiche le tri sans rien telecharger")
+    parseur.add_argument("--reconstruire", action="store_true",
+                         help="re-telecharge a l'identique les fichiers de "
+                              "licenses.csv, sans refaire de recherche")
     args = parseur.parse_args()
 
     cfg = charger_config(args.config)
@@ -352,6 +441,12 @@ def principal() -> None:
 
     dossier_brut = assurer_dossier("data/raw")
     chemin_csv = chemin_projet(d["fichier_licences"])
+
+    if args.reconstruire:
+        obtenus = reconstruire(d, dossier_brut)
+        if obtenus == 0:
+            sys.exit("echec de la reconstruction : aucun fichier obtenu")
+        return
 
     # 1. Rassembler les candidats (recherches + categories), sans doublon de titre
     candidats: Dict[str, Dict[str, Any]] = {}

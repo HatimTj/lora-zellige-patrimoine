@@ -127,8 +127,13 @@ def principal() -> None:
         info(f"pas de selection manuelle, toutes les images : {len(fichiers)}")
 
     if not fichiers:
-        info("aucune image a traiter. Lancez d'abord src/collect_wikimedia.py")
-        return
+        sys.exit("ERREUR : aucune image dans data/raw. Lancez d'abord "
+                 "`python src/collect_wikimedia.py --reconstruire`.")
+
+    attendu = len(noms) if fichier_selection.exists() else len(fichiers)
+    if len(fichiers) < attendu:
+        info(f"ATTENTION : {attendu - len(fichiers)} image(s) de la selection "
+             "manquent dans data/raw")
 
     # 2. Recadrer en memoire et calculer les empreintes
     recadrees: Dict[str, Image.Image] = {}

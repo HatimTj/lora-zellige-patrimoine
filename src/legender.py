@@ -213,6 +213,10 @@ def principal() -> None:
         texte = f"a {token} {objet}, {formuler_couleurs(couleurs)}, {composition}"
         entrees.append({"file_name": chemin.name, "text": texte})
 
+    if not entrees:
+        sys.exit("ERREUR : aucune image dans "
+                 f"{dossier}. Lancez d'abord `python src/prepare_data.py`.")
+
     with open(sortie, "w", encoding="utf-8") as f:
         for entree in entrees:
             f.write(json.dumps(entree, ensure_ascii=False) + "\n")

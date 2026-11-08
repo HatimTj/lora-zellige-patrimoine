@@ -31,12 +31,25 @@ auteur et URL compris, est dans `licenses.csv`.
 
 ## Comment regenerer le jeu
 
+Reconstruction a l'identique, depuis les fichiers versionnes (recommande) :
+
 ```bash
-python src/collect_wikimedia.py --limite 120   # telechargement + licences
+python src/collect_wikimedia.py --reconstruire \
+  && python src/prepare_data.py \
+  && python src/legender.py
+```
+
+`--reconstruire` redemande a Commons les fichiers exacts listes dans
+`licenses.csv`. Le resultat est identique a chaque execution.
+
+Collecte initiale, pour repartir de zero (change la numerotation) :
+
+```bash
+python src/collect_wikimedia.py --limite 120   # recherche + licences
 python src/planche_contact.py                  # planche pour le tri visuel
 #   -> tri manuel : on edite data/selection.txt
-python src/prepare_data.py                     # recadrage 512, doublons, separation
-python src/legender.py                         # legendes
+python src/prepare_data.py
+python src/legender.py
 ```
 
 Fichiers versionnes qui suffisent a tout reconstruire :
