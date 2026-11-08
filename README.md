@@ -1,98 +1,204 @@
-# Projet 5 - Specialiser un modele texte-image avec LoRA (zellige)
+# LoRA Zellige — spécialiser un modèle texte-image sur le patrimoine marocain
 
-Adaptation de **Stable Diffusion 1.5** au style du **zellige marocain** par **LoRA**,
-a partir de ~45 images sous licence libre, dans un budget de **12 Go de VRAM**
-(Google Colab, GPU T4).
+**Projet 5** — Module IA génératives visuelles, EMSI 5ᵉ année.
 
-Le projet ne cherche pas seulement a produire de belles images : il mesure le
-**compromis** entre fidelite au style, respect du prompt, cout de calcul et
-surapprentissage, en fonction du **rang LoRA** et du **nombre d'etapes**.
+Adaptation de **Stable Diffusion 1.5** au style du **zellige marocain** par
+**LoRA**, à partir de ~45 images sous licence libre, dans un budget de
+**12 Go de VRAM** (Google Colab, GPU T4).
 
-## Questions de recherche
+Le projet ne cherche pas seulement à produire de belles images : il mesure le
+**compromis** entre fidélité au style, respect du prompt, coût de calcul et
+surapprentissage, en fonction du **rang LoRA** et du **nombre d'étapes
+d'entraînement**.
+
+---
+
+## Sommaire
+
+1. [Objectif et questions de recherche](#objectif-et-questions-de-recherche)
+2. [Méthode](#méthode)
+3. [Résultats principaux](#résultats-principaux)
+4. [Démarrage rapide](#démarrage-rapide)
+5. [Structure du dépôt](#structure-du-dépôt)
+6. [Décisions de cadrage](#décisions-de-cadrage)
+7. [Avancement](#avancement)
+8. [Équipe](#équipe)
+9. [Licence et éthique](#licence-et-éthique)
+
+---
+
+## Objectif et questions de recherche
+
+Réentraîner entièrement un modèle texte-image est hors de portée d'un GPU
+gratuit. **LoRA** contourne le problème : au lieu de modifier une matrice de
+poids `W` de plusieurs millions de paramètres, on apprend deux petites matrices
+`A` et `B` et on utilise `W + B·A`. Seules `A` et `B` sont entraînées, soit un
+fichier de quelques mégaoctets au lieu de 4 Go.
+
+La question n'est donc pas *« est-ce que ça marche »* mais *« à quel prix »* :
 
 | # | Question | Mesure |
 |---|---|---|
-| Q1 | Le modele a-t-il appris le style du zellige ? | CLIP-I / DINOv2 vs images de reference |
-| Q2 | Obeit-il encore au texte ? | CLIPScore (image <-> prompt) |
-| Q3 | Combien cela coute-t-il ? | VRAM pic, temps/pas, taille du fichier LoRA |
-| Q4 | A-t-il surappris ? | similarite au plus proche voisin, prompts hors domaine |
+| **Q1** | Le modèle a-t-il appris le style du zellige ? | CLIP-I / DINOv2 vs images de référence |
+| **Q2** | Obéit-il encore au texte ? | CLIPScore (image ↔ prompt) |
+| **Q3** | Combien cela coûte-t-il ? | VRAM pic, temps par pas, taille du fichier LoRA |
+| **Q4** | A-t-il surappris ? | similarité au plus proche voisin, prompts hors domaine |
 
-## Etat d'avancement
+L'hypothèse testée : **rang élevé et entraînement long donnent un style plus
+fidèle, mais au prix du respect du prompt et au risque de mémoriser les images
+d'entraînement.** Le projet cartographie ce compromis.
 
-- [x] Etape 0 - Cadrage et depot
-- [ ] Etape 1 - Jeu de donnees (collecte, licences, legendes)
-- [ ] Etape 2 - Baseline SD 1.5 et metriques
-- [ ] Etape 3 - Premiere LoRA fonctionnelle
-- [ ] Etape 4 - Balayage rang x etapes x intensite
-- [ ] Etape 5 - Analyse du surapprentissage
-- [ ] Etape 6 - Demo Gradio + video
-- [ ] Etape 7 - Rapport (6-8 p) et soutenance (10 min)
+## Méthode
 
-## Installation
+```
+45 images Wikimedia          10 prompts figés
+   (licences tracées)         + 4 seeds fixes
+          │                         │
+          ▼                         ▼
+   recadrage 512²            baseline SD 1.5
+   dédoublonnage              (avant LoRA)
+   légendes « zlj_style »            │
+          │                          │
+          ▼                          │
+   entraînement LoRA ──────────┐     │
+   rangs 4 / 8 / 16 / 32       │     │
+   pas  250 → 2000             │     │
+          │                     ▼    ▼
+          └──────────────►  évaluation
+                            CLIPScore · CLIP-I
+                            DINOv2 · LPIPS · coûts
+                                   │
+                                   ▼
+                        compromis + démo Gradio
+```
+
+Le **token déclencheur** `zlj_style` est une chaîne sans sens en anglais,
+présente dans toutes les légendes. Entraîner sur le mot `zellige` écraserait ce
+que le modèle en sait déjà et rendrait la comparaison avant/après inexploitable.
+
+### Environnement de référence
+
+| Élément | Valeur |
+|---|---|
+| Modèle de base | `runwayml/stable-diffusion-v1-5` |
+| Résolution | 512 × 512 |
+| Précision | fp16, gradient checkpointing, Adam 8-bit |
+| GPU | Google Colab T4 (16 Go, budget imposé : 12 Go) |
+| Seeds d'évaluation | 1234, 2025, 777, 42 |
+
+## Résultats principaux
+
+> À compléter à l'Étape 4, à partir de `results/results.csv`.
+
+| Configuration | Style (CLIP-I) | Prompt (CLIPScore) | Mémorisation | Temps | Taille |
+|---|---|---|---|---|---|
+| Baseline SD 1.5 | — | — | — | — | — |
+| LoRA r=4 | | | | | |
+| LoRA r=8 | | | | | |
+| LoRA r=16 | | | | | |
+| LoRA r=32 | | | | | |
+
+Figures attendues dans `results/figures/` :
+
+- `compromis.png` — fidélité au style vs respect du prompt, un point par configuration
+- `grille_rangs.png` — même prompt, même seed, un rang par ligne
+- `intensite.png` — effet du curseur d'intensité LoRA de 0 à 1,25
+- `hors_domaine.png` — dégradation sur des prompts sans rapport avec le zellige
+
+## Démarrage rapide
 
 ```bash
+git clone https://github.com/HatimTj/lora-zellige-patrimoine.git
+cd lora-zellige-patrimoine
 pip install -r requirements.txt
 ```
 
-## Lancement
+Puis, dans l'ordre des étapes :
 
 ```bash
-# Etape 1 : collecte des images (Wikimedia Commons, avec licences)
+# Étape 1 — collecte des images et de leurs licences
 python src/collect_wikimedia.py --config configs/base.yaml
+python src/prepare_data.py      --config configs/base.yaml
 
-# Etape 1 : preparation (recadrage 512x512, dedoublonnage)
-python src/prepare_data.py --config configs/base.yaml
-
-# Etape 2 : baseline du modele non modifie
+# Étape 2 — baseline du modèle non modifié
 python src/generate.py --config configs/base.yaml --lora none --out results/baseline
 
-# Etape 3/4 : entrainement d'une LoRA
+# Étape 3 et 4 — entraînement d'une LoRA
 python src/train_lora.py --config configs/lora_r8.yaml
 
-# Etape 4 : evaluation complete -> results/results.csv
+# Étape 4 — évaluation complète, écrit results/results.csv
 python src/evaluate.py --config configs/base.yaml
 
-# Etape 6 : demo
+# Étape 6 — démonstration interactive
 python demo/app.py
 ```
 
-## Structure
+Les notebooks de `notebooks/` reprennent les mêmes étapes, prêts à exécuter sur
+Colab.
+
+## Structure du dépôt
 
 | Dossier | Contenu |
 |---|---|
-| `notebooks/` | Notebooks numerotes : donnees, baseline, entrainement, evaluation, demo |
-| `src/` | Code reutilisable |
-| `configs/` | Parametres des experiences (une config par run) |
-| `data/` | Script de telechargement et fiche des donnees (aucune donnee lourde) |
-| `results/` | Figures, tableaux et exemples generes |
-| `demo/` | Application Gradio et video courte |
+| `notebooks/` | Notebooks numérotés : données, baseline, entraînement, évaluation, démo |
+| `src/` | Code réutilisable du projet |
+| `configs/` | Paramètres des expériences, une config par run |
+| `data/` | Script de téléchargement et fiche des données, **sans données lourdes** |
+| `results/` | Figures, tableaux et exemples générés |
+| `demo/` | Application Gradio et vidéo courte |
 | `report/` | Rapport final |
-| `docs/` | Licences, fiche du modele, reflexion ethique |
+| `docs/` | Licences, fiche du modèle, réflexion éthique, feuille de route |
 
-## Resultats principaux
+Les images et les poids de modèles sont exclus de Git (`.gitignore`). Seuls
+`data/licenses.csv` et `data/metadata.jsonl` sont versionnés : ils suffisent à
+reconstruire le jeu de données à l'identique.
 
-> A completer a l'Etape 4.
+## Décisions de cadrage
 
-## Decisions de cadrage
+Ces choix sont figés dans `configs/base.yaml`. Les modifier invaliderait les
+comparaisons déjà faites.
 
-- **Un seul concept** : zellige / motifs geometriques. Melanger plusieurs styles
-  empeche la LoRA de converger avec si peu d'images.
-- **Token declencheur** : `zlj_style`, present dans toutes les legendes, pour
-  appeler le style sans alterer le reste du modele.
-- **SD 1.5 et non SDXL** : contrainte de 12 Go de VRAM.
-- **Pas de FID** : avec ~45 images de reference, le FID est fortement biaise.
-  On utilise CLIP-I + DINOv2 + inspection visuelle. Justifie dans le rapport.
+**Un seul concept — le zellige.** Mélanger zellige, portes et calligraphie
+empêcherait la LoRA de converger avec seulement 45 images.
 
-## Equipe
+**SD 1.5 plutôt que SDXL.** SDXL en 1024 × 1024 dépasse le budget de 12 Go de
+VRAM imposé par le sujet. SD 1.5 en 512 tient dans ~8 à 10 Go.
+
+**Prompts et seeds figés avant tout entraînement.** Choisir ses prompts après
+avoir vu les résultats rendrait toute comparaison avant/après sans valeur.
+
+**Pas de FID.** Avec ~45 images de référence, le FID est fortement biaisé et peu
+fiable. On utilise CLIP-I, DINOv2 et l'inspection visuelle, et ce choix est
+justifié dans le rapport.
+
+## Avancement
+
+- [x] **Étape 0** — Cadrage, structure du dépôt, conventions
+- [ ] **Étape 1** — Jeu de données : collecte, licences, légendes
+- [ ] **Étape 2** — Baseline SD 1.5 et implémentation des métriques
+- [ ] **Étape 3** — Première LoRA fonctionnelle
+- [ ] **Étape 4** — Balayage rang × étapes × intensité
+- [ ] **Étape 5** — Analyse du surapprentissage
+- [ ] **Étape 6** — Démo Gradio et vidéo
+- [ ] **Étape 7** — Rapport (6-8 p) et soutenance (10 min)
+
+Feuille de route détaillée et dépendances entre tâches : `docs/contributions.md`.
+
+## Équipe
 
 - Hatim Tajimi
 - Houssam El Moutaqui
 - Saad Belekbira
 
-La repartition des taches sera presentee a la soutenance. La feuille de route et
-les dependances entre taches sont dans `docs/contributions.md`.
+La répartition des tâches sera présentée à la soutenance.
 
-## Licence
+## Licence et éthique
 
-Code sous licence MIT (voir `LICENSE`). Les images sources restent sous leurs
-licences respectives, documentees dans `data/licenses.csv`.
+Le code est sous licence MIT (`LICENSE`). Les images sources restent sous leurs
+licences respectives, documentées image par image dans `data/licenses.csv`
+(auteur, URL, licence).
+
+Le zellige est un savoir-faire artisanal vivant. Les images produites sont des
+illustrations synthétiques, explicitement marquées comme telles dans la démo, et
+ne prétendent ni reproduire un ouvrage réel ni se substituer au travail d'un
+maalem. Voir `docs/ethics.md`.
