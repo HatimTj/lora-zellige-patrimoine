@@ -1,0 +1,37 @@
+# ============================================================
+# Projet 5 - LoRA texte-image
+# Decisions de cadrage (Etape 0). Ne pas modifier sans justifier
+# le changement dans le rapport : c'est la base de comparaison.
+# ============================================================
+
+projet:
+  numero: 5
+  titre: "Adapter un modele texte-image avec LoRA"
+  concept: "zellige"            # UN SEUL concept (consigne du sujet)
+  trigger_token: "zlj_style"    # token declencheur present dans TOUTES les legendes
+
+modele_base:
+  id: "runwayml/stable-diffusion-v1-5"
+  resolution: 512
+  # Justification VRAM : SD 1.5 + LoRA en fp16 tient dans ~8-10 Go.
+  # SDXL en 1024 depasse le budget de 12 Go impose par le sujet.
+  dtype: "fp16"
+
+plateforme:
+  cible: "google_colab"
+  gpu: "T4"
+  vram_max_go: 12
+  # Sessions Colab instables -> checkpoints frequents sur Drive
+  checkpoint_tous_les_n_pas: 250
+
+donnees:
+  source_principale: "wikimedia_commons"
+  sources_complementaires: ["photos_equipe"]
+  n_images_cible: 45
+  n_images_holdout: 8           # jamais vues : test de generalisation
+  taille_image: 512
+  fichier_licences: "data/licenses.csv"
+
+reproductibilite:
+  seeds_evaluation: [1234, 2025, 777, 42]
+  n_prompts_evaluation: 10

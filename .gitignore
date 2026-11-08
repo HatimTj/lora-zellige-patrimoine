@@ -1,0 +1,30 @@
+# Donnees lourdes : interdites dans Git (consigne du sujet)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Poids de modeles
+*.ckpt
+*.safetensors
+*.bin
+*.pth
+outputs/
+checkpoints/
+lora_weights/
+
+# Images generees volumineuses (on ne versionne que les figures finales)
+results/**/*.png
+results/**/*.jpg
+!results/figures/**
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+*.egg-info/
+
+# Systeme
+.DS_Store
