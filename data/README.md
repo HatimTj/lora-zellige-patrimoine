@@ -9,8 +9,11 @@
 | Candidats examines | 367 |
 | Images telechargees | 120 |
 | **Retenues apres tri manuel** | **37** |
-| Dont reservees au test de generalisation | 8 (jamais vues a l'entrainement) |
-| Resolution finale | 512 x 512 |
+| Quasi-doublons ecartes | 0 (aucun : paire la plus proche a distance 18, seuil 10) |
+| **Images d'entrainement** | **29** |
+| **Images de generalisation** | **8** (jamais vues a l'entrainement) |
+| Resolution finale | 512 x 512, recadrage carre centre |
+| Graine de separation | 1234 |
 
 ### Licences des images retenues
 
@@ -29,9 +32,17 @@ auteur et URL compris, est dans `licenses.csv`.
 ## Comment regenerer le jeu
 
 ```bash
-python src/collect_wikimedia.py --config configs/base.yaml   # telechargement + licences
-python src/prepare_data.py --config configs/base.yaml        # recadrage, dedoublonnage, legendes
+python src/collect_wikimedia.py --limite 120   # telechargement + licences
+python src/planche_contact.py                  # planche pour le tri visuel
+#   -> tri manuel : on edite data/selection.txt
+python src/prepare_data.py                     # recadrage 512, doublons, separation
+python src/legender.py                         # legendes
 ```
+
+Fichiers versionnes qui suffisent a tout reconstruire :
+`licenses.csv` (origine et licence), `selection.txt` (tri manuel),
+`compositions.csv` (descriptions ecrites a la main), `preparation.json`
+(separation entrainement / generalisation, avec la graine).
 
 Aucune image n'est stockee dans Git. Seuls `licenses.csv` et `metadata.jsonl`
 sont versionnes, ce qui suffit a reconstruire le jeu a l'identique.
