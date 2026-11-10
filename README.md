@@ -207,9 +207,8 @@ Feuille de route détaillée et dépendances entre tâches : `docs/contributions
 
 ## Équipe
 
-Binôme :
-
 - **Hatim Tajimi**
+- **Houssam El Moutaqui**
 - **Saad Belekbira**
 
 La répartition des tâches sera présentée à la soutenance. La feuille de route

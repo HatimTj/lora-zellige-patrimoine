@@ -1,6 +1,6 @@
 # Feuille de route et taches
 
-Binome : **Hatim Tajimi** et **Saad Belekbira**.
+Equipe : **Hatim Tajimi**, **Houssam El Moutaqui**, **Saad Belekbira**.
 
 > La repartition nominative des taches sera arretee plus tard et presentee a la
 > soutenance. Ce document sert pour l'instant de feuille de route : une ligne =
@@ -85,21 +85,20 @@ Balayages (Etape 4)   ->  figures
 Les metriques et les 10 prompts ne dependent d'**aucune image** : ils peuvent
 etre ecrits en parallele de la collecte.
 
-## Decoupage de la soutenance (10 min, a deux voix)
+## Decoupage de la soutenance (10 min, a trois voix)
 
 | Temps | Contenu | Qui |
 |---|---|---|
 | 1 min | Probleme et objectif | Hatim |
 | 1 min | Donnees, licences, legendes | Hatim |
-| 2 min | LoRA : principe, rang, protocole | Saad |
+| 2 min | LoRA : principe, rang, protocole | Houssam |
 | 3 min | Resultats : compromis et figures | Saad |
-| 1 min | Demo (video) | Hatim |
-| 1 min | Surapprentissage et limites | Saad |
+| 1 min | Demo (video) | Saad |
+| 1 min | Surapprentissage et limites | Houssam |
 | 1 min | Ethique et conclusion | Hatim |
 
-Alternance volontaire : chacun parle de sujets differents, et personne ne
-presente uniquement ce qu'il a code. Cela oblige les deux membres a maitriser
-l'ensemble du projet, ce que le jury verifie souvent par ses questions.
+Chacun doit pouvoir repondre sur l'ensemble du projet, pas seulement sur la
+partie qu'il presente : le jury verifie souvent ce point par ses questions.
 
 ## Convention de commits
 
