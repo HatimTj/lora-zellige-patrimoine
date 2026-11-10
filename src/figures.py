@@ -118,7 +118,12 @@ def figure_intensite(df: pd.DataFrame, sortie: Path) -> None:
 
 def figure_pas(df: pd.DataFrame, sortie: Path) -> None:
     """Style et memorisation en fonction de la duree d'entrainement."""
-    serie = df[df["pas"].notna() & (df["rang"] == 8)].sort_values("pas")
+    # Le filtre porte sur le NOM, pas sur rang == 8 : le balayage d'intensite
+    # et le balayage de rang produisent eux aussi des lignes de rang 8, avec
+    # une intensite ou un budget differents. Les melanger donnerait une courbe
+    # qui n'a aucun sens -- plusieurs points a 1000 pas, et un point a 400 pas
+    # issu d'un budget d'entrainement different.
+    serie = df[df["nom"].str.fullmatch(r"r8_\d+pas", na=False)].sort_values("pas")
     if len(serie) < 2:
         info("pas.png ignoree (moins de deux points)")
         return
@@ -150,7 +155,7 @@ def figure_pas(df: pd.DataFrame, sortie: Path) -> None:
 
 def figure_rangs(df: pd.DataFrame, sortie: Path) -> None:
     """Quatre rangs a budget identique : style, texte, memorisation, diversite."""
-    serie = df[df["nom"].str.contains("_400pas", na=False)].sort_values("rang")
+    serie = df[df["nom"].str.fullmatch(r"lora_r\d+_400pas", na=False)].sort_values("rang")
     if len(serie) < 2:
         info("rangs.png ignoree (moins de deux points)")
         return
