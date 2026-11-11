@@ -94,6 +94,9 @@ Source : `results/results.csv`. À compléter au fil des Étapes 3 et 4.
 |---|---|---|---|---|---|
 | **Baseline SD 1.5** | **0,274** | 34,27 | 33,14 | 0,737 | 0,646 |
 | **LoRA r=8, 1000 pas** | **0,339** (+23,5 %) | 34,40 | 32,94 | 0,845 | 0,597 |
+| LoRA r=8, 250 pas | 0,285 | 34,73 | 32,99 | 0,787 | 0,616 |
+| LoRA r=8, 500 pas | 0,328 | 34,47 | 32,80 | 0,810 | 0,588 |
+| LoRA r=8, 750 pas | 0,334 | 35,25 | 32,91 | 0,851 | 0,592 |
 | LoRA r=4, 400 pas | | | | | |
 | LoRA r=16, 400 pas | | | | | |
 | LoRA r=32, 400 pas | | | | | |
@@ -198,7 +201,8 @@ justifié dans le rapport.
 - [x] **Étape 1** — Jeu de données : 367 candidats → 37 retenus → 29 + 8
 - [x] **Étape 2** — Baseline SD 1.5 mesurée : style DINOv2 = 0,274, prompt = 34,3
 - [x] **Étape 3** — LoRA rang 8, 1000 pas : style DINOv2 0,274 → 0,339 (+23,5 %)
-- [~] **Étape 4** — Balayages écrits : notebooks 04 (pas, intensité) et 05 (rang)
+- [~] **Étape 4** — Balayage du nombre de pas fait ; intensité à refaire (bug du
+  curseur corrigé) ; balayage du rang à lancer (notebook 05)
 - [ ] **Étape 5** — Analyse du surapprentissage
 - [ ] **Étape 6** — Démo Gradio et vidéo
 - [ ] **Étape 7** — Rapport (6-8 p) et soutenance (10 min)

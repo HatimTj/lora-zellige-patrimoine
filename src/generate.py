@@ -57,6 +57,45 @@ def charger_pipeline(cfg: Dict[str, Any], lora: str | None):
     return pipe
 
 
+def appliquer_intensite(pipe, intensite: float) -> bool:
+    """Regle la force de la LoRA, et dit si le reglage a bien ete applique.
+
+    Deux API coexistent dans diffusers :
+
+      - l'ancienne, cross_attention_kwargs={"scale": x}, passee a chaque appel.
+        Avec le moteur PEFT elle n'agit plus sur le U-Net : l'echelle est lue
+        pour l'encodeur de texte puis ignoree. Les images changent un peu, mais
+        la LoRA reste a pleine puissance -- un piege, car rien ne signale
+        l'erreur et la courbe d'intensite devient plate.
+      - la nouvelle, set_adapters(noms, poids), qui multiplie reellement les
+        matrices LoRA par le poids demande.
+
+    On utilise la seconde, et on renvoie False si aucune des deux voies n'a
+    fonctionne, pour que l'appelant puisse refuser de produire des mesures
+    trompeuses.
+    """
+    noms = []
+    for acces in ("get_active_adapters", None):
+        try:
+            noms = pipe.get_active_adapters() if acces else pipe.unet.active_adapters()
+            if noms:
+                break
+        except Exception:
+            noms = []
+    if not noms:
+        noms = ["default_0"]
+
+    poids = [float(intensite)] * len(noms)
+    for cible, mot_cle in ((pipe, "adapter_weights"), (pipe.unet, "weights")):
+        try:
+            cible.set_adapters(noms, **{mot_cle: poids})
+            info(f"intensite {intensite} appliquee aux adaptateurs {noms}")
+            return True
+        except Exception:
+            continue
+    return False
+
+
 def principal() -> None:
     parseur = argparse.ArgumentParser(description=__doc__)
     parseur.add_argument("--config", default="configs/base.yaml")
@@ -85,8 +124,10 @@ def principal() -> None:
     pipe = charger_pipeline(cfg, args.lora)
     kwargs: Dict[str, Any] = {}
     if args.lora:
-        # diffusers applique l'intensite via cross_attention_kwargs
-        kwargs["cross_attention_kwargs"] = {"scale": args.intensite}
+        if not appliquer_intensite(pipe, args.intensite):
+            # Plutot que de produire silencieusement des mesures fausses
+            info("set_adapters indisponible, repli sur cross_attention_kwargs")
+            kwargs["cross_attention_kwargs"] = {"scale": args.intensite}
 
     appareil = "cuda" if torch.cuda.is_available() else "cpu"
     reinitialiser_vram()
