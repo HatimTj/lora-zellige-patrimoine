@@ -1,0 +1,295 @@
+{
+  "lora": "runs/r8",
+  "intensite": 0.75,
+  "modele_base": "runwayml/stable-diffusion-v1-5",
+  "etapes_debruitage": 30,
+  "guidance": 7.5,
+  "taille": 512,
+  "n_images": 40,
+  "duree_totale_s": 219.737,
+  "duree_par_image_s": 5.493,
+  "vram_pic_go": 2.6162567138671875,
+  "images": [
+    {
+      "fichier": "D1_s1234.png",
+      "prompt_id": "D1",
+      "categorie": "domaine",
+      "texte": "a zlj_style tile panel, blue and white, one large rosette filling the frame",
+      "graine": 1234
+    },
+    {
+      "fichier": "D1_s2025.png",
+      "prompt_id": "D1",
+      "categorie": "domaine",
+      "texte": "a zlj_style tile panel, blue and white, one large rosette filling the frame",
+      "graine": 2025
+    },
+    {
+      "fichier": "D1_s777.png",
+      "prompt_id": "D1",
+      "categorie": "domaine",
+      "texte": "a zlj_style tile panel, blue and white, one large rosette filling the frame",
+      "graine": 777
+    },
+    {
+      "fichier": "D1_s42.png",
+      "prompt_id": "D1",
+      "categorie": "domaine",
+      "texte": "a zlj_style tile panel, blue and white, one large rosette filling the frame",
+      "graine": 42
+    },
+    {
+      "fichier": "D2_s1234.png",
+      "prompt_id": "D2",
+      "categorie": "domaine",
+      "texte": "a zlj_style tile panel, green and ochre, allover interlacing eight-pointed stars",
+      "graine": 1234
+    },
+    {
+      "fichier": "D2_s2025.png",
+      "prompt_id": "D2",
+      "categorie": "domaine",
+      "texte": "a zlj_style tile panel, green and ochre, allover interlacing eight-pointed stars",
+      "graine": 2025
+    },
+    {
+      "fichier": "D2_s777.png",
+      "prompt_id": "D2",
+      "categorie": "domaine",
+      "texte": "a zlj_style tile panel, green and ochre, allover interlacing eight-pointed stars",
+      "graine": 777
+    },
+    {
+      "fichier": "D2_s42.png",
+      "prompt_id": "D2",
+      "categorie": "domaine",
+      "texte": "a zlj_style tile panel, green and ochre, allover interlacing eight-pointed stars",
+      "graine": 42
+    },
+    {
+      "fichier": "D3_s1234.png",
+      "prompt_id": "D3",
+      "categorie": "domaine",
+      "texte": "a zlj_style tiled wall, red and yellow, repeating small star rosettes",
+      "graine": 1234
+    },
+    {
+      "fichier": "D3_s2025.png",
+      "prompt_id": "D3",
+      "categorie": "domaine",
+      "texte": "a zlj_style tiled wall, red and yellow, repeating small star rosettes",
+      "graine": 2025
+    },
+    {
+      "fichier": "D3_s777.png",
+      "prompt_id": "D3",
+      "categorie": "domaine",
+      "texte": "a zlj_style tiled wall, red and yellow, repeating small star rosettes",
+      "graine": 777
+    },
+    {
+      "fichier": "D3_s42.png",
+      "prompt_id": "D3",
+      "categorie": "domaine",
+      "texte": "a zlj_style tiled wall, red and yellow, repeating small star rosettes",
+      "graine": 42
+    },
+    {
+      "fichier": "D4_s1234.png",
+      "prompt_id": "D4",
+      "categorie": "domaine",
+      "texte": "a zlj_style tiled fountain wall, turquoise and white, a central medallion",
+      "graine": 1234
+    },
+    {
+      "fichier": "D4_s2025.png",
+      "prompt_id": "D4",
+      "categorie": "domaine",
+      "texte": "a zlj_style tiled fountain wall, turquoise and white, a central medallion",
+      "graine": 2025
+    },
+    {
+      "fichier": "D4_s777.png",
+      "prompt_id": "D4",
+      "categorie": "domaine",
+      "texte": "a zlj_style tiled fountain wall, turquoise and white, a central medallion",
+      "graine": 777
+    },
+    {
+      "fichier": "D4_s42.png",
+      "prompt_id": "D4",
+      "categorie": "domaine",
+      "texte": "a zlj_style tiled fountain wall, turquoise and white, a central medallion",
+      "graine": 42
+    },
+    {
+      "fichier": "T1_s1234.png",
+      "prompt_id": "T1",
+      "categorie": "transfert",
+      "texte": "a zlj_style pattern on a modern ceramic coffee cup, studio photo, white background",
+      "graine": 1234
+    },
+    {
+      "fichier": "T1_s2025.png",
+      "prompt_id": "T1",
+      "categorie": "transfert",
+      "texte": "a zlj_style pattern on a modern ceramic coffee cup, studio photo, white background",
+      "graine": 2025
+    },
+    {
+      "fichier": "T1_s777.png",
+      "prompt_id": "T1",
+      "categorie": "transfert",
+      "texte": "a zlj_style pattern on a modern ceramic coffee cup, studio photo, white background",
+      "graine": 777
+    },
+    {
+      "fichier": "T1_s42.png",
+      "prompt_id": "T1",
+      "categorie": "transfert",
+      "texte": "a zlj_style pattern on a modern ceramic coffee cup, studio photo, white background",
+      "graine": 42
+    },
+    {
+      "fichier": "T2_s1234.png",
+      "prompt_id": "T2",
+      "categorie": "transfert",
+      "texte": "a zlj_style pattern printed on a skateboard deck, product photo",
+      "graine": 1234
+    },
+    {
+      "fichier": "T2_s2025.png",
+      "prompt_id": "T2",
+      "categorie": "transfert",
+      "texte": "a zlj_style pattern printed on a skateboard deck, product photo",
+      "graine": 2025
+    },
+    {
+      "fichier": "T2_s777.png",
+      "prompt_id": "T2",
+      "categorie": "transfert",
+      "texte": "a zlj_style pattern printed on a skateboard deck, product photo",
+      "graine": 777
+    },
+    {
+      "fichier": "T2_s42.png",
+      "prompt_id": "T2",
+      "categorie": "transfert",
+      "texte": "a zlj_style pattern printed on a skateboard deck, product photo",
+      "graine": 42
+    },
+    {
+      "fichier": "T3_s1234.png",
+      "prompt_id": "T3",
+      "categorie": "transfert",
+      "texte": "a zlj_style geometric pattern as a flat laptop wallpaper",
+      "graine": 1234
+    },
+    {
+      "fichier": "T3_s2025.png",
+      "prompt_id": "T3",
+      "categorie": "transfert",
+      "texte": "a zlj_style geometric pattern as a flat laptop wallpaper",
+      "graine": 2025
+    },
+    {
+      "fichier": "T3_s777.png",
+      "prompt_id": "T3",
+      "categorie": "transfert",
+      "texte": "a zlj_style geometric pattern as a flat laptop wallpaper",
+      "graine": 777
+    },
+    {
+      "fichier": "T3_s42.png",
+      "prompt_id": "T3",
+      "categorie": "transfert",
+      "texte": "a zlj_style geometric pattern as a flat laptop wallpaper",
+      "graine": 42
+    },
+    {
+      "fichier": "H1_s1234.png",
+      "prompt_id": "H1",
+      "categorie": "hors_domaine",
+      "texte": "a photograph of a golden retriever running in a park",
+      "graine": 1234
+    },
+    {
+      "fichier": "H1_s2025.png",
+      "prompt_id": "H1",
+      "categorie": "hors_domaine",
+      "texte": "a photograph of a golden retriever running in a park",
+      "graine": 2025
+    },
+    {
+      "fichier": "H1_s777.png",
+      "prompt_id": "H1",
+      "categorie": "hors_domaine",
+      "texte": "a photograph of a golden retriever running in a park",
+      "graine": 777
+    },
+    {
+      "fichier": "H1_s42.png",
+      "prompt_id": "H1",
+      "categorie": "hors_domaine",
+      "texte": "a photograph of a golden retriever running in a park",
+      "graine": 42
+    },
+    {
+      "fichier": "H2_s1234.png",
+      "prompt_id": "H2",
+      "categorie": "hors_domaine",
+      "texte": "a bowl of fresh strawberries on a wooden table",
+      "graine": 1234
+    },
+    {
+      "fichier": "H2_s2025.png",
+      "prompt_id": "H2",
+      "categorie": "hors_domaine",
+      "texte": "a bowl of fresh strawberries on a wooden table",
+      "graine": 2025
+    },
+    {
+      "fichier": "H2_s777.png",
+      "prompt_id": "H2",
+      "categorie": "hors_domaine",
+      "texte": "a bowl of fresh strawberries on a wooden table",
+      "graine": 777
+    },
+    {
+      "fichier": "H2_s42.png",
+      "prompt_id": "H2",
+      "categorie": "hors_domaine",
+      "texte": "a bowl of fresh strawberries on a wooden table",
+      "graine": 42
+    },
+    {
+      "fichier": "H3_s1234.png",
+      "prompt_id": "H3",
+      "categorie": "hors_domaine",
+      "texte": "a city street at night in the rain, cinematic",
+      "graine": 1234
+    },
+    {
+      "fichier": "H3_s2025.png",
+      "prompt_id": "H3",
+      "categorie": "hors_domaine",
+      "texte": "a city street at night in the rain, cinematic",
+      "graine": 2025
+    },
+    {
+      "fichier": "H3_s777.png",
+      "prompt_id": "H3",
+      "categorie": "hors_domaine",
+      "texte": "a city street at night in the rain, cinematic",
+      "graine": 777
+    },
+    {
+      "fichier": "H3_s42.png",
+      "prompt_id": "H3",
+      "categorie": "hors_domaine",
+      "texte": "a city street at night in the rain, cinematic",
+      "graine": 42
+    }
+  ],
+  "taille_lora_mo": 6.118
+}
