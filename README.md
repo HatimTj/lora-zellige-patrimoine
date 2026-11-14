@@ -195,14 +195,59 @@ avoir vu les résultats rendrait toute comparaison avant/après sans valeur.
 fiable. On utilise CLIP-I, DINOv2 et l'inspection visuelle, et ce choix est
 justifié dans le rapport.
 
+## Résultats de l'Étape 4
+
+### Nombre de pas d'entraînement (rang 8, intensité 1,0)
+
+| pas | style DINOv2 | mémorisation max | diversité |
+|---|---|---|---|
+| 250 | 0,285 | 0,787 | 0,599 |
+| 500 | 0,328 | 0,810 | 0,588 |
+| 750 | 0,334 | 0,851 | 0,592 |
+| 1000 | 0,339 | 0,845 | 0,597 |
+
+Le style gagne +15 % entre 250 et 500 pas, puis +3 % sur les 500 suivants. La
+mémorisation, elle, continue de monter. **500 pas suffisent** : au-delà on paie
+du temps GPU et du risque de recopie pour un gain marginal.
+
+### Intensité du curseur (rang 8, 1000 pas)
+
+| intensité | 0 (base) | 0,25 | 0,50 | 0,75 | 1,00 | 1,25 |
+|---|---|---|---|---|---|---|
+| style DINOv2 | 0,274 | 0,275 | 0,294 | 0,274 | **0,339** | 0,346 |
+| diversité | 0,646 | 0,633 | 0,616 | 0,611 | 0,597 | 0,572 |
+
+La réponse n'est pas linéaire, c'est **un effet de seuil autour de 1,0**. En
+dessous, la LoRA agit déjà — la diversité décroît de façon strictement monotone
+— mais elle modifie la palette et la texture sans imposer la géométrie. Sur
+`planche_intensite.png` on voit un grand carreau peint jusqu'à 0,75, puis à 1,00
+le champ se fragmente en petites tesselles assemblées en étoiles, qui est la
+signature du zellige. L'image et la mesure basculent au même endroit.
+
+Attention à la lecture de la planche : le prompt D1 demande du zellige, donc le
+modèle de base produit déjà du carrelage bleu et blanc. Une colonne « qui
+ressemble à du zellige » ne prouve donc rien à elle seule ; c'est le passage du
+carreau peint à la mosaïque assemblée qui distingue la LoRA.
+
+### Vérification du curseur
+
+La section 5 du notebook 04 génère une image à l'intensité 0,0 et la compare
+pixel par pixel au modèle de base. Si l'écart dépasse 3/255, le notebook
+s'arrête : le réglage n'aurait pas été appliqué et tout le balayage serait
+trompeur. Ce contrôle a été ajouté après une fausse alerte où la forme en
+palier de la courbe avait été prise pour une panne du réglage. Le balayage a
+ensuite été relancé par une autre voie de l'API diffusers (`set_adapters` au
+lieu de `cross_attention_kwargs`) et a redonné les mêmes valeurs au centième,
+ce qui confirme les deux mesures.
+
 ## Avancement
 
 - [x] **Étape 0** — Cadrage, structure du dépôt, conventions
 - [x] **Étape 1** — Jeu de données : 367 candidats → 37 retenus → 29 + 8
 - [x] **Étape 2** — Baseline SD 1.5 mesurée : style DINOv2 = 0,274, prompt = 34,3
 - [x] **Étape 3** — LoRA rang 8, 1000 pas : style DINOv2 0,274 → 0,339 (+23,5 %)
-- [~] **Étape 4** — Balayage du nombre de pas fait ; intensité à refaire (bug du
-  curseur corrigé) ; balayage du rang à lancer (notebook 05)
+- [~] **Étape 4** — Balayages du nombre de pas et de l'intensité faits ;
+  balayage du rang à lancer (notebook 05)
 - [ ] **Étape 5** — Analyse du surapprentissage
 - [ ] **Étape 6** — Démo Gradio et vidéo
 - [ ] **Étape 7** — Rapport (6-8 p) et soutenance (10 min)
