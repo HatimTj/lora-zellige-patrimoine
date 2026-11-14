@@ -59,6 +59,18 @@ def principal() -> None:
     # 1. Images generees, dans l'ordre du manifeste
     noms = [e["fichier"] for e in manifeste["images"]]
     from PIL import Image
+
+    # Le manifeste est versionne dans Git, les images non (.gitignore exclut
+    # results/**/*.png). Un dossier peut donc contenir le manifeste sans les
+    # images : on le dit clairement plutot que de laisser filer un
+    # FileNotFoundError au milieu du chargement.
+    manquantes = [n for n in noms if not (dossier / n).exists()]
+    if manquantes:
+        sys.exit(f"ERREUR : {len(manquantes)} des {len(noms)} images annoncees par "
+                 f"{dossier}/manifeste.json sont absentes (la premiere : "
+                 f"{manquantes[0]}). Les images ne sont pas versionnees dans Git : "
+                 f"relancez la generation de cette configuration avant de l'evaluer.")
+
     generees = [Image.open(dossier / n).convert("RGB") for n in noms]
     textes = [e["texte"] for e in manifeste["images"]]
     categories = [e["categorie"] for e in manifeste["images"]]
