@@ -1,0 +1,21 @@
+{
+  "lora": null,
+  "intensite": 0.0,
+  "modele_base": "runwayml/stable-diffusion-v1-5",
+  "etapes_debruitage": 30,
+  "guidance": 7.5,
+  "taille": 512,
+  "n_images": 1,
+  "duree_totale_s": 6.062,
+  "duree_par_image_s": 6.062,
+  "vram_pic_go": 2.6132869720458984,
+  "images": [
+    {
+      "fichier": "D1_s1234.png",
+      "prompt_id": "D1",
+      "categorie": "domaine",
+      "texte": "a zlj_style tile panel, blue and white, one large rosette filling the frame",
+      "graine": 1234
+    }
+  ]
+}
