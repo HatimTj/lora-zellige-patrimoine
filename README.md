@@ -284,6 +284,68 @@ ensuite été relancé par une autre voie de l'API diffusers (`set_adapters` au
 lieu de `cross_attention_kwargs`) et a redonné les mêmes valeurs au centième,
 ce qui confirme les deux mesures.
 
+## Résultats de l'Étape 5 — surapprentissage
+
+### Le seuil de recopie n'est pas choisi, il est mesuré
+
+Décréter « au-dessus de 0,85 c'est une copie » n'est pas défendable. Le seuil
+vient donc des données : les 8 images du holdout sont de vraies photos de
+zellige que le modèle n'a jamais vues, et leur ressemblance à l'entraînement
+donne la ressemblance normale entre deux photos indépendantes du même
+artisanat.
+
+| similarité DINOv2 au plus proche voisin d'entraînement | min | médiane | moyenne | max |
+|---|---|---|---|---|
+| holdout (8 vraies photos jamais vues) | 0,457 | 0,733 | 0,722 | **0,908** |
+| images générées (28 prompts zellige) | 0,123 | 0,601 | 0,491 | 0,845 |
+
+**Aucune image générée n'atteint le seuil de 0,908**, et la distribution générée
+est globalement *plus basse* que celle du holdout : une image produite ressemble
+moins à l'entraînement que ne le fait une vraie photo de zellige inconnue du
+modèle.
+
+Lecture plus sévère, puisque le maximum sur 8 échantillons est une barre
+permissive : en prenant la moyenne du holdout (0,722), **3 images sur 28
+dépassent**, soit 10,7 %. Ces trois-là sont les premières de
+`plus_proches_voisins.png`, et c'est là que le regard prend le relais.
+
+### Ce que l'œil ajoute au chiffre
+
+`plus_proches_voisins.png` affiche les 8 paires les plus ressemblantes. Les
+trois premières (0,845, 0,830, 0,782) partagent avec leur voisin d'entraînement
+la **composition** — une rosace centrale, un éclatement en étoile — mais pas la
+palette, pas le nombre de branches, pas le détail des tesselles. Une recopie se
+reconnaîtrait au contraire aux défauts du carreau et à la découpe exacte.
+
+C'est attendu : la géométrie islamique repose sur un répertoire fini de
+symétries. Deux zelliges authentiques et sans rapport partagent déjà beaucoup,
+ce que confirme le holdout. Le score élevé mesure ce répertoire commun, pas une
+mémorisation.
+
+### Le modèle sait-il encore faire autre chose ?
+
+| | modèle de base | LoRA | écart |
+|---|---|---|---|
+| CLIPScore hors domaine | 33,14 | 32,94 | **−0,20** |
+
+Rien n'est perdu. `hors_domaine.png` montre un chien, des fraises et une rue
+sous la pluie tout à fait normaux, sans trace de carrelage. Le pire écart
+(−2,45, sur les fraises) correspond à un recadrage, pas à une dégradation du
+contenu. La LoRA reste accrochée au token `zlj_style` au lieu de déborder sur
+tous les prompts.
+
+### Conclusion de l'étape
+
+Le modèle a appris un style, pas un jeu d'images. Les trois mesures
+indépendantes — seuil issu du holdout, inspection des paires, prompts hors
+domaine — vont dans le même sens, et la plus exigeante des trois (10,7 % au-
+dessus de la moyenne du holdout) reste explicable par le répertoire géométrique
+commun.
+
+Limite à mentionner en soutenance : avec 8 images de holdout, le seuil repose
+sur peu d'échantillons. C'est le même ordre de grandeur de données qui interdit
+le FID, et cela reste une contrainte assumée du projet.
+
 ## Avancement
 
 - [x] **Étape 0** — Cadrage, structure du dépôt, conventions
@@ -291,7 +353,8 @@ ce qui confirme les deux mesures.
 - [x] **Étape 2** — Baseline SD 1.5 mesurée : style DINOv2 = 0,274, prompt = 34,3
 - [x] **Étape 3** — LoRA rang 8, 1000 pas : style DINOv2 0,274 → 0,339 (+23,5 %)
 - [x] **Étape 4** — Balayages du nombre de pas, de l'intensité et du rang
-- [ ] **Étape 5** — Analyse du surapprentissage
+- [x] **Étape 5** — Surapprentissage : 0/28 image au-dessus du seuil de
+  recopie, CLIPScore hors domaine −0,20
 - [ ] **Étape 6** — Démo Gradio et vidéo
 - [ ] **Étape 7** — Rapport (6-8 p) et soutenance (10 min)
 
