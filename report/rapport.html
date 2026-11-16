@@ -1,0 +1,901 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spécialiser Stable Diffusion sur le zellige marocain par LoRA</title>
+<style>
+/* ----------------------------------------------------------------------
+   Mise en page d'impression. Le rapport est concu pour etre imprime en
+   A4 depuis le navigateur (Fichier > Imprimer > Enregistrer au format PDF,
+   marges « par defaut », arriere-plans actives).
+   ---------------------------------------------------------------------- */
+
+@page {
+  size: A4;
+  margin: 15mm 15mm 14mm 15mm;
+}
+@page :first { margin: 0; }
+
+:root {
+  --vert:        #0C8E36;   /* vert du logo EMSI */
+  --vert-sombre: #086B28;
+  --encre:       #1A1C1F;
+  --gris:        #575656;
+  --gris-clair:  #6B6F76;
+  --filet:       #D8DCE0;
+  --fond-doux:   #F5F7F6;
+  --bleu:        #28558F;
+  --terre:       #B5502E;
+}
+
+* { box-sizing: border-box; }
+
+html { font-size: 9.5pt; }
+
+body {
+  margin: 0;
+  font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  color: var(--encre);
+  line-height: 1.44;
+  text-align: justify;
+  hyphens: auto;
+}
+
+h1, h2, h3, h4, .sans { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; }
+
+/* ---------------- Page de garde ---------------- */
+
+.garde {
+  page-break-after: always;
+  height: 297mm;
+  padding: 24mm 22mm 18mm 22mm;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+.garde__logo { width: 82mm; height: auto; }
+.garde__filiere {
+  margin-top: 16mm;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 9.5pt;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--gris);
+}
+.garde__regle { height: 3px; width: 46mm; background: var(--vert); margin: 7mm 0 9mm 0; }
+.garde__titre {
+  font-size: 25pt;
+  line-height: 1.22;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -.3px;
+}
+.garde__sous {
+  margin-top: 6mm;
+  font-size: 12pt;
+  color: var(--gris-clair);
+  font-style: italic;
+  max-width: 128mm;
+}
+.garde__corps { flex: 1; }
+
+.garde__bloc {
+  display: grid;
+  grid-template-columns: 34mm 1fr;
+  gap: 2.2mm 6mm;
+  font-size: 10pt;
+  border-top: 1px solid var(--filet);
+  padding-top: 6mm;
+  margin-top: 6mm;
+}
+.garde__cle {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 8.4pt;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--gris-clair);
+  padding-top: .9mm;
+}
+.garde__val { font-size: 10.5pt; }
+.garde__val b { font-weight: 600; }
+.garde__pied {
+  margin-top: 9mm;
+  font-size: 8.6pt;
+  color: var(--gris-clair);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* ---------------- Titres ---------------- */
+
+h2 {
+  font-size: 13pt;
+  font-weight: 600;
+  margin: 5.5mm 0 2.4mm 0;
+  padding-bottom: 1.2mm;
+  border-bottom: 2px solid var(--vert);
+  page-break-after: avoid;
+  letter-spacing: -.2px;
+}
+h2 .num { color: var(--vert); font-weight: 700; margin-right: 2.6mm; }
+h2:first-of-type { margin-top: 0; }
+
+h3 {
+  font-size: 11pt;
+  font-weight: 600;
+  margin: 3.6mm 0 1.4mm 0;
+  color: var(--vert-sombre);
+  page-break-after: avoid;
+}
+
+p { margin: 0 0 2.1mm 0; }
+p + h3 { margin-top: 5mm; }
+
+strong { font-weight: 600; }
+code, .mono {
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: .86em;
+  /* Sans cela, hyphens:auto coupait cross_attention_kwargs en deux */
+  hyphens: none;
+  white-space: nowrap;
+  background: var(--fond-doux);
+  padding: .3mm 1.1mm;
+  border-radius: 2px;
+}
+
+/* ---------------- Encadres ---------------- */
+
+.resume {
+  background: var(--fond-doux);
+  border-left: 3px solid var(--vert);
+  padding: 3.2mm 4.2mm;
+  margin: 0 0 4mm 0;
+  font-size: 9.9pt;
+}
+.resume h3 { margin-top: 0; color: var(--encre); }
+
+.cle {
+  border: 1px solid var(--filet);
+  border-left: 3px solid var(--bleu);
+  background: #FAFBFC;
+  padding: 2.6mm 3.8mm;
+  margin: 2.8mm 0;
+  font-size: 9.9pt;
+  page-break-inside: avoid;
+}
+.cle__titre {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 8.2pt;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--bleu);
+  margin-bottom: 1.4mm;
+}
+
+.alerte { border-left-color: var(--terre); }
+.alerte .cle__titre { color: var(--terre); }
+
+/* ---------------- Tableaux ---------------- */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 8.9pt;
+  margin: 2.2mm 0 1.6mm 0;
+  page-break-inside: avoid;
+  font-variant-numeric: tabular-nums;
+}
+caption {
+  caption-side: bottom;
+  text-align: left;
+  font-family: Georgia, serif;
+  font-size: 8.4pt;
+  color: var(--gris-clair);
+  padding-top: 1.6mm;
+  font-style: italic;
+}
+th {
+  text-align: right;
+  font-weight: 600;
+  font-size: 8.2pt;
+  letter-spacing: .02em;
+  color: var(--gris);
+  border-bottom: 1.4px solid var(--encre);
+  padding: 1.2mm 1.8mm;
+}
+th:first-child, td:first-child { text-align: left; }
+td {
+  text-align: right;
+  padding: 1.15mm 1.8mm;
+  border-bottom: .5px solid var(--filet);
+}
+tbody tr:last-child td { border-bottom: 1.2px solid var(--encre); }
+td.fort, th.fort { background: #EEF4EF; font-weight: 600; }
+.sobre { color: var(--gris-clair); }
+
+/* ---------------- Figures ---------------- */
+
+figure {
+  margin: 3.2mm 0 3mm 0;
+  page-break-inside: avoid;
+  text-align: center;
+}
+figure img {
+  max-width: 100%;
+  /* Les figures sont larges et peu hautes : sans plafond, chacune occupait
+     la moitie d'une page et le rapport depassait le format demande. */
+  max-height: 53mm;
+  width: auto;
+  height: auto;
+}
+figure.grande img {
+  max-height: 80mm;
+  border: 1px solid var(--filet);
+  border-radius: 2px;
+}
+figcaption {
+  font-size: 8.4pt;
+  color: var(--gris-clair);
+  text-align: left;
+  padding-top: 1.8mm;
+  line-height: 1.45;
+}
+figcaption b { color: var(--encre); font-weight: 600; }
+
+ul, ol { margin: 0 0 2.6mm 0; padding-left: 5.5mm; }
+li { margin-bottom: 1.1mm; }
+
+.saut { page-break-before: always; }
+.ensemble { page-break-inside: avoid; }
+
+.fin {
+  margin-top: 8mm;
+  padding-top: 3mm;
+  border-top: 1px solid var(--filet);
+  font-size: 8.4pt;
+  color: var(--gris-clair);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-align: left;
+}
+
+/* ---------------- Confort a l'ecran ---------------- */
+
+@media screen {
+  body {
+    background: #E7E9EB;
+    padding: 22px 12px;
+  }
+  .feuille {
+    background: #fff;
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 15mm 15mm 14mm 15mm;
+    box-shadow: 0 2px 18px rgba(0,0,0,.14);
+  }
+  .garde {
+    background: #fff;
+    max-width: 210mm;
+    margin: 0 auto 26px auto;
+    box-shadow: 0 2px 18px rgba(0,0,0,.14);
+    height: auto;
+    min-height: 297mm;
+  }
+}
+@media print {
+  .feuille { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ====================== PAGE DE GARDE ====================== -->
+<section class="garde">
+  <img class="garde__logo" src="assets/logo_emsi.png"
+       alt="École Marocaine des Sciences de l'Ingénieur — membre de Honoris United Universities">
+
+  <div class="garde__corps">
+    <div class="garde__filiere">5<sup>e</sup> année · IA générative visuelle · Projet 5</div>
+    <div class="garde__regle"></div>
+
+    <h1 class="garde__titre">Spécialiser Stable&nbsp;Diffusion<br>sur le zellige marocain<br>par adaptation LoRA</h1>
+
+    <p class="garde__sous">
+      Apprendre un style à partir de 29 photographies et 6&nbsp;Mo de poids,
+      puis mesurer ce qui a réellement été appris — y compris ce que cela coûte.
+    </p>
+  </div>
+
+  <div class="garde__bloc">
+    <div class="garde__cle">Équipe</div>
+    <div class="garde__val"><b>Hatim Tajimi</b> · <b>Houssam El Moutaqui</b> · <b>Saad Belekbira</b></div>
+
+    <div class="garde__cle">Modèle de base</div>
+    <div class="garde__val">Stable Diffusion 1.5 · adaptateur LoRA rang 8 · 6,1 Mo</div>
+
+    <div class="garde__cle">Contrainte</div>
+    <div class="garde__val">12 Go de VRAM au maximum — exécuté sur Google Colab T4</div>
+
+    <div class="garde__cle">Dépôt</div>
+    <div class="garde__val mono">github.com/HatimTj/lora-zellige-patrimoine</div>
+
+    <div class="garde__cle">Année</div>
+    <div class="garde__val">2026 — 2027</div>
+  </div>
+
+  <div class="garde__pied">
+    Toutes les mesures de ce rapport sont reproductibles à partir du dépôt :
+    les prompts et les graines ont été figés avant le premier entraînement.
+  </div>
+</section>
+
+<!-- ====================== CORPS ====================== -->
+<div class="feuille">
+
+<div class="resume">
+  <h3>Résumé</h3>
+  <p style="margin-bottom:0">
+    Stable Diffusion 1.5 connaît mal le zellige marocain : interrogé sur ce
+    motif, il produit un carrelage oriental vague, dépourvu de la rigueur
+    géométrique de l'artisanat. Nous l'avons spécialisé par <b>LoRA</b>, une
+    adaptation de faible rang qui gèle les 860 millions de paramètres du
+    générateur et n'en entraîne que 1,59 million, soit 0,19 %. À partir de
+    <b>29 photographies</b> sous licence libre, l'adaptation améliore la
+    fidélité au style de <b>+23,5 %</b> (DINOv2) sans dégrader l'obéissance au
+    texte, pour un fichier de <b>6,1 Mo</b> et une heure de GPU gratuit. Nous
+    montrons surtout que le modèle <b>n'a pas recopié</b> ses images : en
+    établissant le seuil de recopie sur des photographies qu'il n'a jamais vues,
+    aucune des 28 images d'évaluation ne l'atteint.
+  </p>
+</div>
+
+<h2><span class="num">1.</span>Contexte et objectif</h2>
+
+<p>
+Les modèles texte-image sont entraînés sur des milliards d'images collectées
+sur le web anglophone. Cette provenance crée un déséquilibre : les motifs
+largement photographiés et commentés en anglais sont bien représentés, les
+patrimoines locaux beaucoup moins. Le <b>zellige</b> — mosaïque de terre cuite
+émaillée découpée à la main, assemblée en étoiles à 8, 12 ou 16 branches — en
+fait partie. Sollicité sur ce terme, Stable Diffusion 1.5 produit un carrelage
+ornemental générique : la palette est plausible, la géométrie ne l'est pas.
+</p>
+
+<p>
+L'objectif du projet n'est pas de produire de belles images, mais de formuler
+une <b>affirmation vérifiable</b> : de combien un style peut-il être appris à
+partir de quelques dizaines d'images, à quel coût, et au prix de quelles
+pertes ? Cela suppose de mesurer autant ce qui est gagné que ce qui est abîmé.
+</p>
+
+<h3>Contraintes</h3>
+<ul>
+  <li>20 à 50 images autorisées, légendées, licences tracées ;</li>
+  <li>12 Go de VRAM au maximum : Google Colab, GPU T4 ;</li>
+  <li>5 à 10 images réservées pour tester la généralisation ;</li>
+  <li>dépôt Git tenu comme carnet de bord, sans données ni poids lourds.</li>
+</ul>
+
+<h2><span class="num">2.</span>La méthode : adaptation de faible rang</h2>
+
+<p>
+Réentraîner Stable Diffusion est hors de portée : le générateur d'images, un
+U-Net, compte 860 millions de paramètres. Les reprendre tous exigerait des
+dizaines de Go de mémoire, produirait un fichier de 1,6 Go par style et, avec
+29 images, ferait <i>oublier</i> au modèle tout ce qu'il sait par ailleurs. La
+LoRA contourne l'obstacle : les poids d'origine sont gelés, et une correction de
+faible rang leur est ajoutée.
+</p>
+
+<p style="text-align:center; font-size:11.5pt; margin:3mm 0 3.4mm 0">
+  <span class="mono" style="background:none; font-size:1em">
+    W<sub>final</sub> &nbsp;=&nbsp; W<sub>gelé</sub> &nbsp;+&nbsp; B · A
+  </span>
+</p>
+
+<p>
+Les matrices <span class="mono">A</span> et <span class="mono">B</span> sont
+très fines : <span class="mono">A</span> comprime l'information sur
+<b>8 dimensions</b> — le <i>rang</i> — et <span class="mono">B</span> la
+redéploie. Le pari sous-jacent : un style n'est pas 860 millions
+d'informations indépendantes, mais quelques régularités — une palette, une
+symétrie, une façon de poser la lumière — qui tiennent dans très peu de
+dimensions. Les résultats de la section 5 le confirment.
+</p>
+
+<table>
+  <caption>Tableau 1 — Coût de l'adaptation, mesuré sur Colab T4.</caption>
+  <thead>
+    <tr><th>&nbsp;</th><th>Modèle complet</th><th class="fort">LoRA rang 8</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Paramètres entraînés</td><td>859,5 M</td><td class="fort">1,59 M <span class="sobre">(0,19 %)</span></td></tr>
+    <tr><td>Fichier produit</td><td>1,6 Go</td><td class="fort">6,1 Mo</td></tr>
+    <tr><td>Mémoire GPU au pic</td><td class="sobre">hors budget</td><td class="fort">4,66 Go</td></tr>
+    <tr><td>Durée d'entraînement</td><td class="sobre">—</td><td class="fort">49 min</td></tr>
+  </tbody>
+</table>
+
+<h3>Le mot déclencheur</h3>
+
+<p>
+Toutes les légendes d'entraînement commencent par
+<span class="mono">zlj_style</span>, un mot qui n'existe pas. Le choix est
+délibéré. Écrire « zellige » aurait mêlé ce que le modèle croit déjà savoir de
+ce mot à ce que nous lui enseignons ; écrire « tiles » aurait dégradé sa
+compréhension de ce terme pour tous les autres usages. Un mot vide de sens
+offre un <b>point d'accroche propre</b> : le style s'y fixe et nulle part
+ailleurs. La section 6 vérifie que cette séparation tient.
+</p>
+
+<h2><span class="num">3.</span>Le jeu de données</h2>
+
+<p>
+Les images proviennent de <b>Wikimedia Commons</b>, interrogé par son API. Sur
+367 candidats téléchargés, 37 ont été retenus, puis répartis en
+<b>29 images d'entraînement</b> et <b>8 images réservées</b> — le <i>holdout</i>,
+que le modèle ne voit jamais et qui jouera un rôle central à la section 6.
+</p>
+
+<h3>Licences</h3>
+
+<p>
+Chaque image est tracée dans <span class="mono">data/licenses.csv</span> avec
+son auteur, sa licence et son URL. Seules CC0, domaine public, CC BY et CC BY-SA
+ont été retenues. Les mentions <b>NC</b> (non commercial) et <b>ND</b> (pas de
+modification) ont été écartées : entraîner un modèle <i>est</i> une
+modification. Le fichier conserve également les 330 images rejetées
+<b>avec leur motif de rejet</b>, ce qui rend le tri vérifiable plutôt que
+déclaratif.
+</p>
+
+<h3>Le tri automatique ne suffit pas</h3>
+
+<p>
+Un score de pertinence, fondé sur des mots-clés et le format de l'image, a
+dégrossi la sélection. Il a néanmoins laissé passer une <b>capture d'écran d'un
+logiciel nommé « Zellij »</b> : titre pertinent, format carré, licence libre.
+Aucun filtre automatique raisonnable n'attrape ce cas. Dix minutes de relecture
+humaine ont été nécessaires, et nous le consignons comme un enseignement du
+projet plutôt que comme un détail.
+</p>
+
+<div class="cle">
+  <div class="cle__titre">Principe de légendage</div>
+  Les légendes ne décrivent <b>que ce qui varie</b> : couleurs et composition
+  (<span class="mono">zlj_style, blue and white tilework, eight-pointed star
+  pattern</span>), jamais le style lui-même. Si toutes les légendes disaient
+  « mosaïque géométrique », le modèle rattacherait le style à ces mots plutôt
+  qu'au déclencheur. <b>Ce qui est constant dans les images et absent des
+  légendes est précisément ce que le token absorbe.</b>
+</div>
+
+<h3>Reproductibilité par reconstruction</h3>
+
+<p>
+Aucune image ni aucun poids n'est versionné. Le dépôt contient à la place de
+quoi <b>reconstruire le jeu de données à l'identique</b> en une commande
+(<span class="mono">licenses.csv</span>, <span class="mono">selection.txt</span>,
+<span class="mono">compositions.csv</span>, <span class="mono">metadata.jsonl</span>).
+Cette contrainte imposée par le sujet s'est révélée un atout : elle force à
+documenter chaque décision de tri.
+</p>
+
+<h2><span class="num">4.</span>Protocole d'évaluation</h2>
+
+<p>
+C'est la partie qui distingue ce travail d'une simple démonstration. Les
+<b>10 prompts</b> et les <b>4 graines aléatoires</b> ont été figés
+<b>avant tout entraînement</b>, et datés dans le dépôt. Une graine fixe le
+hasard : même graine, même image. Les figer d'avance interdit de choisir après
+coup les résultats qui arrangent. Chaque configuration est jugée sur les
+<b>mêmes 40 images</b>.
+</p>
+
+<p>Les prompts se répartissent en trois familles :</p>
+
+<ul>
+  <li><b>Domaine</b> (4) — du zellige : ce que le modèle doit réussir ;</li>
+  <li><b>Transfert</b> (3) — une tasse, un skateboard : le style appliqué à un
+      objet absent du jeu d'entraînement, pour distinguer un style appris d'une
+      recopie de panneaux ;</li>
+  <li><b>Hors domaine</b> (3) — un chien, des fraises, une rue sous la pluie,
+      <b>sans déclencheur</b> : ce que l'adaptation a cassé.</li>
+</ul>
+
+<table>
+  <caption>Tableau 2 — Quatre questions, quatre mesures indépendantes.</caption>
+  <thead>
+    <tr><th>Question</th><th style="text-align:left">Mesure</th><th style="text-align:left">Lecture</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Le style est-il appris ?</td><td style="text-align:left">DINOv2, CLIP-I</td><td style="text-align:left">similarité aux 8 images réservées</td></tr>
+    <tr><td>Le texte est-il respecté ?</td><td style="text-align:left">CLIPScore</td><td style="text-align:left">accord image–phrase</td></tr>
+    <tr><td>Les images varient-elles ?</td><td style="text-align:left">LPIPS</td><td style="text-align:left">distance moyenne entre productions</td></tr>
+    <tr><td>Le modèle recopie-t-il ?</td><td style="text-align:left">plus proche voisin</td><td style="text-align:left">similarité maximale à l'entraînement</td></tr>
+  </tbody>
+</table>
+
+<div class="cle alerte">
+  <div class="cle__titre">Pourquoi pas de FID</div>
+  Le FID est la métrique usuelle des modèles génératifs, et son absence doit
+  être justifiée. Il est <b>biaisé en dessous de quelques milliers d'images de
+  référence</b> ; nous en avons 29. Le publier donnerait un chiffre d'apparence
+  rigoureuse mais dépourvu de sens. Nous l'écartons et le disons.
+</div>
+
+<h3>DINOv2 plutôt que CLIP-I</h3>
+
+<p>
+Nous avons mesuré le style avec deux encodeurs. Entre la baseline et la LoRA,
+CLIP-I progresse de <b>+3,5 %</b> quand DINOv2 progresse de <b>+23,5 %</b>.
+L'écart s'explique : CLIP est entraîné à relier images et mots, il perçoit donc
+surtout le <i>contenu</i> — « une mosaïque » ; DINOv2 n'a jamais vu de texte et
+apprend par comparaison visuelle, il perçoit la <i>texture et la géométrie</i>.
+Pour un transfert de style, CLIP-I <b>sature</b> là où DINOv2 discrimine. Nous
+retenons DINOv2 comme mesure principale, et cette conclusion repose sur nos
+propres mesures, non sur une citation.
+</p>
+
+<h2><span class="num">5.</span>Résultats</h2>
+
+<h3>5.1 — L'adaptation fonctionne</h3>
+
+<table>
+  <caption>Tableau 3 — Modèle d'origine contre LoRA rang 8, 1000 pas, intensité 1,0. Moyennes sur 40 images.</caption>
+  <thead>
+    <tr><th>Mesure</th><th>Modèle d'origine</th><th class="fort">LoRA</th><th>Écart</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Style — DINOv2</td><td>0,2741</td><td class="fort">0,3386</td><td style="color:var(--vert-sombre)"><b>+23,5 %</b></td></tr>
+    <tr><td>Style — CLIP-I</td><td>0,7061</td><td class="fort">0,7310</td><td>+3,5 %</td></tr>
+    <tr><td>Prompt — domaine</td><td>34,27</td><td class="fort">34,40</td><td>+0,4 %</td></tr>
+    <tr><td>Prompt — hors domaine</td><td>33,14</td><td class="fort">32,94</td><td>−0,6 %</td></tr>
+    <tr><td>Diversité — LPIPS</td><td>0,6464</td><td class="fort">0,5968</td><td style="color:var(--terre)">−7,6 %</td></tr>
+    <tr><td>Mémorisation maximale</td><td>0,7373</td><td class="fort">0,8446</td><td style="color:var(--terre)">+14,6 %</td></tr>
+  </tbody>
+</table>
+
+<p>
+Le style progresse nettement, l'obéissance au texte ne bouge pas. Le coût est
+réel et nous le publions : la diversité recule de 7,6 % et la ressemblance
+maximale au jeu d'entraînement augmente. Un modèle qui se concentre sur un
+style se répète davantage. La section 6 détermine si cette augmentation traduit
+une recopie.
+</p>
+
+<figure>
+  <img src="../results/figures/compromis.png" alt="Nuage de points : fidélité au style en ordonnée, respect du prompt en abscisse, un point par configuration">
+  <figcaption><b>Figure 1 — Le compromis.</b> Chaque point est une
+  configuration ; les pointillés marquent le modèle d'origine. Les
+  configurations situées en haut à droite dominent. La forme en arc révèle un
+  arbitrage limité : on peut gagner beaucoup de style en ne perdant presque rien
+  en obéissance au texte.</figcaption>
+</figure>
+
+<h3>5.2 — Combien de pas d'entraînement ?</h3>
+
+<table>
+  <caption>Tableau 4 — Balayage du nombre de pas, rang 8, intensité 1,0.</caption>
+  <thead>
+    <tr><th>Pas</th><th>Style DINOv2</th><th>Mémorisation max</th><th>Diversité</th><th>Durée</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>250</td><td>0,2853</td><td>0,7866</td><td>0,5990</td><td>12 min</td></tr>
+    <tr class="fort"><td class="fort">500</td><td class="fort">0,3283</td><td class="fort">0,8103</td><td class="fort">0,5880</td><td class="fort">25 min</td></tr>
+    <tr><td>750</td><td>0,3341</td><td>0,8506</td><td>0,5917</td><td>37 min</td></tr>
+    <tr><td>1000</td><td>0,3386</td><td>0,8446</td><td>0,5968</td><td>49 min</td></tr>
+  </tbody>
+</table>
+
+<p>
+Le style gagne <b>+15 %</b> entre 250 et 500 pas, puis <b>+3 %</b> sur les 500
+suivants, tandis que la mémorisation continue de croître. <b>500 pas
+suffisent</b> : au-delà, on échange vingt-quatre minutes de GPU et un risque de
+recopie accru contre un gain marginal. Nous avons conservé le modèle à 1000 pas
+comme référence, les mesures de l'étape précédente ayant été établies dessus.
+</p>
+
+<h3>5.3 — L'intensité n'est pas un variateur linéaire</h3>
+
+<p>
+L'intérêt d'une LoRA est qu'elle se dose : la correction peut être multipliée
+par un facteur à l'inférence. Nous attendions une montée régulière. La mesure
+dit autre chose.
+</p>
+
+<table>
+  <caption>Tableau 5 — Balayage de l'intensité, rang 8, 1000 pas.</caption>
+  <thead>
+    <tr><th>Intensité</th><th>0 (origine)</th><th>0,25</th><th>0,50</th><th>0,75</th><th class="fort">1,00</th><th>1,25</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Style DINOv2</td><td>0,2741</td><td>0,2745</td><td>0,2941</td><td>0,2735</td><td class="fort">0,3386</td><td>0,3458</td></tr>
+    <tr><td>Diversité</td><td>0,6464</td><td>0,6328</td><td>0,6157</td><td>0,6111</td><td class="fort">0,5968</td><td>0,5719</td></tr>
+  </tbody>
+</table>
+
+<p>
+La réponse est un <b>effet de seuil autour de 1,0</b>, non une droite. En
+dessous, la LoRA agit déjà — la diversité décroît de façon strictement
+monotone — mais elle modifie la palette et la texture sans imposer la
+géométrie. La planche visuelle confirme la mesure : jusqu'à 0,75 le modèle
+produit un <b>grand carreau peint</b>, à 1,00 le champ se fragmente en
+<b>petites tesselles assemblées</b> — la signature du zellige, qui est un
+assemblage de pièces découpées et non un carreau décoré.
+</p>
+
+<figure class="grande">
+  <img src="../results/figures/planche_intensite.png" alt="Grille d'images : trois prompts en lignes, cinq intensités en colonnes">
+  <figcaption><b>Figure 2 — Une seule LoRA, cinq intensités, graine
+  identique.</b> Ligne D1 : domaine. Ligne T1 : transfert sur une tasse.
+  Ligne H1 : hors domaine, sans déclencheur. La bascule du carreau peint vers
+  la mosaïque assemblée se produit entre 0,75 et 1,00, au même endroit que le
+  saut de la mesure.</figcaption>
+</figure>
+
+<div class="cle alerte">
+  <div class="cle__titre">Une alerte, et ce qu'elle a produit</div>
+  La forme en palier de cette courbe nous a d'abord fait soupçonner une panne du
+  réglage d'intensité. Le balayage a donc été <b>relancé par une autre voie de
+  l'API</b> (<span class="mono">set_adapters</span> au lieu de
+  <span class="mono">cross_attention_kwargs</span>) : il a redonné les mêmes
+  valeurs au centième. Un <b>test automatique</b> en a été tiré — à l'intensité
+  0, l'image produite doit reproduire le modèle d'origine au pixel près, sans
+  quoi le notebook s'interrompt. Le soupçon était infondé, le garde-fou reste.
+</div>
+
+<h3>5.4 — Le rang coûte peu, mais ne décide pas de tout</h3>
+
+<table>
+  <caption>Tableau 6 — Balayage du rang, à budget d'entraînement identique (400 pas, accumulation 2).</caption>
+  <thead>
+    <tr><th>Rang</th><th>Paramètres</th><th>% du U-Net</th><th>Durée</th><th>VRAM</th><th>Fichier</th><th>Style DINOv2</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>4</td><td>797 k</td><td>0,09 %</td><td>9,5 min</td><td>4,65 Go</td><td>3,1 Mo</td><td>0,2740</td></tr>
+    <tr><td>8</td><td>1,59 M</td><td>0,19 %</td><td>9,6 min</td><td>4,66 Go</td><td>6,1 Mo</td><td>0,2767</td></tr>
+    <tr><td>16</td><td>3,19 M</td><td>0,37 %</td><td>9,7 min</td><td>4,67 Go</td><td>12,2 Mo</td><td>0,2775</td></tr>
+    <tr><td>32</td><td>6,38 M</td><td>0,74 %</td><td>9,6 min</td><td>4,70 Go</td><td>24,4 Mo</td><td><b>0,3028</b></td></tr>
+  </tbody>
+</table>
+
+<p>
+Premier résultat, net : <b>le rang ne coûte presque rien</b>. Multiplier les
+paramètres par huit ne change ni la durée (9,5 à 9,7 minutes) ni la mémoire
+(+0,05 Go). Le calcul est dominé par le U-Net gelé, traversé de toute façon ;
+les matrices LoRA sont négligeables à côté. Seul le fichier grossit, en
+proportion.
+</p>
+
+<div class="cle alerte">
+  <div class="cle__titre">Limite de ce balayage</div>
+  Son budget — 400 pas × accumulation 2, soit <b>800 passages</b> — est
+  inférieur au plus petit point du balayage des pas (250 pas × accumulation 4,
+  soit 1000 passages). Les quatre rangs sont donc mesurés <b>avant le seuil où
+  le style apparaît</b> : si les rangs 4, 8 et 16 restent au niveau du modèle
+  d'origine, c'est faute d'avoir appris, non parce que le rang serait sans
+  effet. Nous pouvons affirmer qu'<b>à budget égal et court, le rang 32 décolle
+  le premier</b> — un rang élevé converge plus vite par pas d'optimisation. Nous
+  ne pouvons pas dire quel rang l'emporte à convergence : il faudrait relancer
+  les quatre à 1000 pas, soit quarante minutes de GPU supplémentaires.
+</div>
+
+<p>
+Le modèle retenu reste donc le <b>rang 8 à 1000 pas</b> (style 0,339 ; 6,1 Mo),
+supérieur à toutes les configurations de ce balayage.
+</p>
+
+<h2><span class="num">6.</span>A-t-il appris, ou recopié ?</h2>
+
+<p>
+Une LoRA entraînée sur 29 images pourrait n'avoir rien appris et se contenter de
+restituer ce qu'elle a vu : le score de style monterait tout autant, puisqu'une
+copie ressemble nécessairement au jeu d'entraînement. Une mesure séparée est
+donc indispensable — et surtout un point de comparaison honnête.
+</p>
+
+<h3>6.1 — Le seuil n'est pas choisi, il est mesuré</h3>
+
+<p>
+Décréter « au-delà de 0,85, c'est une copie » ne serait pas défendable. Nous
+faisons donc venir le seuil des données. Les <b>8 images réservées</b> sont de
+vraies photographies de zellige que le modèle n'a jamais vues ; leur
+ressemblance maximale au jeu d'entraînement donne la <b>ressemblance normale
+entre deux photographies indépendantes du même artisanat</b>. C'est le niveau
+de chance de cette question.
+</p>
+
+<table>
+  <caption>Tableau 7 — Similarité DINOv2 au plus proche voisin d'entraînement.</caption>
+  <thead>
+    <tr><th>Distribution</th><th>min</th><th>médiane</th><th>moyenne</th><th>max</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Holdout — 8 photographies jamais vues</td><td>0,457</td><td>0,733</td><td>0,722</td><td class="fort">0,908</td></tr>
+    <tr><td>Images produites — 28 prompts zellige</td><td>0,123</td><td>0,601</td><td>0,491</td><td>0,845</td></tr>
+  </tbody>
+</table>
+
+<p>
+<b>Aucune image produite n'atteint le seuil de 0,908.</b> Le résultat est même
+plus fort : la distribution produite est globalement <i>plus basse</i> que celle
+du holdout — médiane 0,601 contre 0,733. Une image engendrée par le modèle
+ressemble <b>moins</b> au jeu d'entraînement qu'une vraie photographie de
+zellige inconnue de lui.
+</p>
+
+<p>
+Par honnêteté, nous donnons aussi la lecture sévère : un maximum sur huit
+échantillons est une barre permissive. En prenant la <b>moyenne</b> du holdout
+(0,722), <b>3 images sur 28 dépassent</b>, soit 10,7 %. Ce sont les trois
+premières de la figure 4, et c'est là que le regard prend le relais.
+</p>
+
+<figure>
+  <img src="../results/figures/memorisation_seuil.png" alt="Deux nuages de points sur un même axe de similarité">
+  <figcaption><b>Figure 3 — Jusqu'où ressembler sans copier.</b> En haut les
+  8 photographies jamais vues, en bas les 28 images produites. Les deux nuages
+  se recouvrent, et le second est décalé vers la gauche.</figcaption>
+</figure>
+
+<h3>6.2 — Ce que l'œil ajoute au chiffre</h3>
+
+<figure class="grande">
+  <img src="../results/figures/plus_proches_voisins.png" alt="Huit paires : image produite au-dessus, image d'entraînement la plus proche au-dessous">
+  <figcaption><b>Figure 4 — Les huit paires les plus ressemblantes.</b> En haut
+  l'image produite, en dessous son plus proche voisin d'entraînement, classées
+  par similarité décroissante.</figcaption>
+</figure>
+
+<p>
+Les trois paires les plus proches (0,845 · 0,830 · 0,782) partagent avec leur
+voisin la <b>composition</b> — une rosace centrale, un éclatement en étoile —
+mais ni la palette, ni le nombre de branches, ni le détail des tesselles. Une
+recopie se reconnaîtrait au contraire aux défauts du carreau et à la découpe
+exacte ; il n'y en a aucune.
+</p>
+
+<p>
+Ce constat est cohérent avec la nature même de l'objet : la géométrie islamique
+repose sur un <b>répertoire fini de symétries</b>. Deux zelliges authentiques et
+sans rapport se ressemblent déjà beaucoup, ce que le holdout établit chiffres à
+l'appui — jusqu'à 0,908 entre deux photographies indépendantes. Le score élevé
+mesure ce répertoire commun, non une mémorisation.
+</p>
+
+<h3>6.3 — Le modèle sait-il encore faire autre chose ?</h3>
+
+<p>
+Sur les trois prompts hors domaine, et <b>sans déclencheur</b>, le CLIPScore
+passe de <b>33,14 à 32,94</b>, soit −0,20. Le chien court, les fraises sont des
+fraises, la rue sous la pluie est une rue sous la pluie : aucune trace de
+carrelage. Le pire écart individuel, −2,45 sur les fraises, correspond à un
+recadrage et non à une dégradation du contenu.
+</p>
+
+<figure>
+  <img src="../results/figures/hors_domaine.png" alt="Trois paires avant/après sur des prompts sans rapport avec le zellige">
+  <figcaption><b>Figure 5 — Prompts hors domaine.</b> Modèle d'origine en haut,
+  LoRA en dessous, même graine. Pour chaque prompt est montré le cas le
+  <b>plus défavorable</b> à la LoRA, non le plus flatteur.</figcaption>
+</figure>
+
+<p>
+Le pari du mot déclencheur est donc tenu : le style reste attaché à
+<span class="mono">zlj_style</span> au lieu de déborder sur l'ensemble des
+prompts. C'est la justification empirique d'un choix fait à l'étape 0, avant
+tout résultat.
+</p>
+
+<h2><span class="num">7.</span>Démonstration</h2>
+
+<p>
+L'application <span class="mono">demo/app.py</span> (Gradio) affiche côte à côte
+le modèle d'origine et le modèle adapté, pour un même prompt et une même graine,
+avec un curseur d'intensité et un interrupteur sur le déclencheur.
+</p>
+
+<p>
+Elle présente une particularité : <b>elle s'audite elle-même</b>. Chaque image
+produite est comparée aux 29 images d'entraînement, et le résultat est placé en
+direct sur l'échelle établie à la section 6 — médiane du holdout et seuil de
+recopie — avec l'image d'entraînement la plus proche affichée à côté. Montrer un
+modèle génératif sans dire s'il recopie nous paraissait incomplet.
+</p>
+
+<p>
+Deux économies découlent des mesures antérieures : l'intensité 0 reproduisant le
+modèle d'origine au pixel près, <b>un seul pipeline</b> alimente les deux
+colonnes — 1,6 Go de VRAM épargnés — et l'image d'origine étant mise en cache,
+déplacer le curseur ne recalcule que la colonne de droite.
+</p>
+
+<h2><span class="num">8.</span>Limites, éthique et coût</h2>
+
+<h3>Limites méthodologiques</h3>
+<ul>
+  <li><b>Le seuil repose sur 8 images.</b> C'est peu, et nous le signalons
+      plutôt que de le taire. La même rareté de données interdit le FID.</li>
+  <li><b>Le balayage du rang est sous-entraîné</b> (section 5.4) : il ne permet
+      pas de conclure sur le meilleur rang à convergence.</li>
+  <li><b>29 photographies ne représentent qu'une fraction</b> du répertoire du
+      zellige — dominante bleu et blanc, panneaux plutôt que fontaines. Le
+      modèle en imite une facette, il ne le documente pas.</li>
+</ul>
+
+<h3>Patrimoine et appropriation</h3>
+<p>
+Le zellige est un savoir-faire vivant, transmis par des <i>maalems</i>. Un
+modèle qui en imite la surface ne reproduit ni la géométrie sous-jacente exacte,
+ni les contraintes du matériau et de la découpe. Ce projet est un outil
+d'exploration visuelle et de sensibilisation ; il ne se substitue pas au travail
+artisanal et les images produites ne sont pas des relevés fidèles de panneaux
+existants.
+</p>
+
+<h3>Licences et transparence</h3>
+<p>
+Aucune image sans licence identifiée n'a été employée ; aucune œuvre d'artiste
+vivant nommé n'a été incluse. Le modèle de base, les données, les graines et les
+prompts sont publiés, de sorte que chaque chiffre de ce rapport peut être
+recalculé.
+</p>
+
+<h3>Empreinte de calcul</h3>
+<p>
+L'ensemble du projet représente environ <b>2 h 24 de GPU T4</b> : 88 minutes
+d'entraînement cumulées sur cinq configurations et 56 minutes de génération pour
+les quinze configurations évaluées. C'est l'un des arguments de la LoRA, et il
+mérite d'être chiffré plutôt qu'affirmé.
+</p>
+
+<h2><span class="num">9.</span>Conclusion</h2>
+
+<p>
+À partir de 29 photographies sous licence libre et de 6,1 Mo de poids
+entraînés — 0,19 % du générateur — Stable Diffusion 1.5 apprend le style du
+zellige : <b>+23,5 % de fidélité</b> mesurée sur DINOv2, sans perte
+d'obéissance au texte, pour une heure de GPU gratuit. Le coût est mesuré et
+publié : <b>−7,6 % de diversité</b>. Et le modèle <b>n'a pas recopié</b> :
+confronté à un seuil établi sur des photographies qu'il n'a jamais vues, aucune
+des 28 images d'évaluation ne l'atteint.
+</p>
+
+<p>
+Au-delà du résultat, le projet aura surtout consisté à construire les conditions
+dans lesquelles une affirmation devient vérifiable : figer les prompts et les
+graines avant d'entraîner, choisir les métriques avant de voir les résultats,
+faire venir les seuils des données plutôt que de l'intuition, et publier ce qui
+se dégrade autant que ce qui s'améliore.
+</p>
+
+<div class="cle">
+  <div class="cle__titre">Reproduire ces résultats</div>
+  <span class="mono">git clone github.com/HatimTj/lora-zellige-patrimoine</span><br>
+  Les notebooks 01 à 07 reconstruisent le jeu de données, entraînent, évaluent
+  et lancent la démonstration. Les images et les poids ne sont pas versionnés :
+  le dépôt contient de quoi les régénérer à l'identique.
+</div>
+
+<h3>Répartition du travail</h3>
+<table>
+  <caption>Tableau 8 — Répartition présentée à la soutenance ; chaque membre répond sur l'ensemble du projet.</caption>
+  <thead>
+    <tr><th>Membre</th><th style="text-align:left">Responsabilité principale</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Hatim Tajimi</td><td style="text-align:left">Cadrage, collecte et licences, légendage, dépôt et intégration</td></tr>
+    <tr><td>Houssam El Moutaqui</td><td style="text-align:left">Entraînement LoRA, balayages rang et pas, analyse du surapprentissage</td></tr>
+    <tr><td>Saad Belekbira</td><td style="text-align:left">Métriques et protocole, figures et tableaux, démonstration Gradio</td></tr>
+  </tbody>
+</table>
+
+<div class="fin">
+  Projet 5 — IA générative visuelle · EMSI, 5<sup>e</sup> année · 2026-2027 ·
+  <span class="mono">github.com/HatimTj/lora-zellige-patrimoine</span>
+</div>
+
+</div>
+</body>
+</html>

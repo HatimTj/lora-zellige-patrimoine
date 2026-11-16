@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
-from typing import List
+from typing import Dict, List, Tuple
 
 import matplotlib
 matplotlib.use("Agg")
@@ -58,15 +58,69 @@ def figure_compromis(df: pd.DataFrame, sortie: Path) -> None:
     s'il existe vraiment un arbitrage, ou si certaines configurations sont
     simplement meilleures que d'autres.
     """
-    fig, ax = plt.subplots(figsize=(7.5, 5.5))
+    fig, ax = plt.subplots(figsize=(8.2, 5.8))
+
+    # Trois lignes de results.csv designent la meme configuration mesuree sous
+    # des noms differents (lora_r8_1000pas, r8_1000pas, intensite_1.00). Les
+    # tracer trois fois empilerait trois etiquettes au meme endroit : on les
+    # regroupe sur un point unique, sous le nom le plus parlant.
+    groupes: Dict[Tuple[float, float], List[str]] = {}
     for _, l in df.iterrows():
-        base = l["nom"] == "baseline"
-        ax.scatter(l["prompt_domaine"], l["style_dino_moy"],
-                   s=190 if base else 120,
+        cle = (round(float(l["prompt_domaine"]), 4),
+               round(float(l["style_dino_moy"]), 4))
+        groupes.setdefault(cle, []).append(str(l["nom"]))
+
+    def etiquette(noms: List[str]) -> str:
+        if "baseline" in noms:
+            return "baseline"
+        if len(noms) == 1:
+            return noms[0]
+        # Le nom le plus court decrit en general la configuration de reference
+        return min(noms, key=len) + f" (×{len(noms)})"
+
+    points = sorted(groupes.items(), key=lambda kv: (-kv[0][1], kv[0][0]))
+    for (x, y), noms in points:
+        base = "baseline" in noms
+        ax.scatter(x, y, s=190 if base else 120,
                    c=GRIS if base else BLEU, marker="s" if base else "o",
                    edgecolor="white", linewidth=1.4, zorder=3)
-        ax.annotate(l["nom"], (l["prompt_domaine"], l["style_dino_moy"]),
-                    textcoords="offset points", xytext=(8, 6), fontsize=8)
+
+    ax.margins(x=0.12, y=0.10)
+    fig.canvas.draw()          # fige les echelles avant de projeter en pixels
+
+    # Placement des etiquettes avec evitement de collisions. Des decalages
+    # fixes, meme alternes, ne suffisent pas : la moitie basse de ce nuage est
+    # dense et deux etiquettes finissaient toujours par se recouvrir. On essaie
+    # huit positions autour de chaque point et on retient la premiere libre.
+    TAILLE = 7.6
+    occupes: List[Tuple[float, float, float, float]] = []
+
+    def libre(boite) -> bool:
+        gx1, gy1, gx2, gy2 = boite
+        for bx1, by1, bx2, by2 in occupes:
+            if gx1 < bx2 and bx1 < gx2 and gy1 < by2 and by1 < gy2:
+                return False
+        return True
+
+    candidats = [(9, 7), (9, -14), (-9, 7), (-9, -14),
+                 (9, 20), (9, -27), (-9, 20), (-9, -27)]
+
+    for (x, y), noms in points:
+        texte = etiquette(noms)
+        # Largeur estimee : a cette taille, un caractere occupe environ 0,58 em
+        largeur = len(texte) * TAILLE * 0.58
+        hauteur = TAILLE * 1.35
+        px, py = ax.transData.transform((x, y))
+
+        for dx, dy in candidats:
+            gx1 = px + dx if dx > 0 else px + dx - largeur
+            boite = (gx1, py + dy - hauteur / 2, gx1 + largeur, py + dy + hauteur / 2)
+            if libre(boite):
+                break
+        occupes.append(boite)
+        ax.annotate(texte, (x, y), textcoords="offset points", xytext=(dx, dy),
+                    fontsize=TAILLE, color="#30343a", zorder=4,
+                    va="center", ha="left" if dx > 0 else "right")
 
     x0, y0 = reference(df, "prompt_domaine"), reference(df, "style_dino_moy")
     if x0 and y0:
