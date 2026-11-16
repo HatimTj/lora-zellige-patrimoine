@@ -1,47 +1,66 @@
 #!/usr/bin/env bash
-# Fabrique report/rapport.pdf a partir de report/rapport.html.
+# Fabrique les PDF du rapport et de la soutenance a partir de leurs sources
+# HTML. On passe par Chrome sans interface plutot que par un convertisseur
+# dedie : c'est le moteur qui sert deja a relire les documents a l'ecran, donc
+# le PDF est exactement ce qu'on voit.
 #
-# On passe par Chrome sans interface plutot que par un convertisseur dedie :
-# c'est le moteur qui sert deja a relire le rapport a l'ecran, donc le PDF est
-# identique a ce qu'on voit. Chrome ne rend pas toujours la main apres
-# --print-to-pdf : on attend que le fichier cesse de grossir, puis on l'arrete.
+#   bash report/construire_pdf.sh              # les deux
+#   bash report/construire_pdf.sh rapport      # seulement le rapport
+#   bash report/construire_pdf.sh soutenance   # seulement la soutenance
 #
-#   bash report/construire_pdf.sh
+# Le format de page est fixe dans chaque fichier par une regle @page : A4
+# portrait pour le rapport, 16:9 pour la soutenance.
 #
-# Sous Windows ou Linux, ou si Chrome est ailleurs :
-#   ouvrir report/rapport.html dans le navigateur, Imprimer, Enregistrer en PDF,
-#   format A4, marges « par defaut », cocher « Graphiques d'arriere-plan ».
+# Sans Chrome, ou sous Windows : ouvrir le .html dans le navigateur,
+# Imprimer, Enregistrer en PDF, marges « par defaut », en cochant
+# « Graphiques d'arriere-plan ».
 
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
 CHROME="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
-SRC="$PWD/report/rapport.html"
-OUT="$PWD/report/rapport.pdf"
-PROFIL="$(mktemp -d)"
-
 if [ ! -x "$CHROME" ]; then
   echo "Chrome introuvable. Definissez CHROME=/chemin/vers/chrome, ou"
-  echo "imprimez report/rapport.html depuis votre navigateur."
+  echo "imprimez le .html depuis votre navigateur."
   exit 1
 fi
 
-rm -f "$OUT"
-"$CHROME" --headless --disable-gpu --no-sandbox --no-first-run \
-  --no-pdf-header-footer --user-data-dir="$PROFIL" \
-  --virtual-time-budget=15000 --print-to-pdf="$OUT" "file://$SRC" \
-  >/dev/null 2>&1 &
-PID=$!
+construire() {
+  local nom="$1"
+  local src="$PWD/report/$nom.html"
+  local out="$PWD/report/$nom.pdf"
+  local profil; profil="$(mktemp -d)"
 
-for _ in $(seq 1 60); do
-  sleep 1
-  if [ -s "$OUT" ]; then
-    T1=$(wc -c < "$OUT"); sleep 1; T2=$(wc -c < "$OUT")
-    [ "$T1" = "$T2" ] && break
-  fi
-done
-kill $PID 2>/dev/null || true
-wait $PID 2>/dev/null || true
-rm -rf "$PROFIL"
+  [ -f "$src" ] || { echo "source absente : $src"; exit 1; }
+  rm -f "$out"
 
-[ -s "$OUT" ] && echo "rapport.pdf : $(wc -c < "$OUT") octets" || { echo "echec"; exit 1; }
+  # Chrome ne rend pas toujours la main apres --print-to-pdf : on le lance en
+  # arriere-plan, on attend que le fichier cesse de grossir, puis on l'arrete.
+  "$CHROME" --headless --disable-gpu --no-sandbox --no-first-run \
+    --no-pdf-header-footer --user-data-dir="$profil" \
+    --virtual-time-budget=15000 --print-to-pdf="$out" "file://$src" \
+    >/dev/null 2>&1 &
+  local pid=$!
+
+  for _ in $(seq 1 60); do
+    sleep 1
+    if [ -s "$out" ]; then
+      local t1 t2
+      t1=$(wc -c < "$out"); sleep 1; t2=$(wc -c < "$out")
+      [ "$t1" = "$t2" ] && break
+    fi
+  done
+  kill $pid 2>/dev/null || true
+  wait $pid 2>/dev/null || true
+  rm -rf "$profil"
+
+  [ -s "$out" ] || { echo "echec : $nom"; exit 1; }
+  echo "report/$nom.pdf  ($(( $(wc -c < "$out") / 1024 )) Ko)"
+}
+
+case "${1:-tout}" in
+  rapport)    construire rapport ;;
+  soutenance) construire soutenance ;;
+  tout)       construire rapport; construire soutenance ;;
+  *) echo "usage : $0 [rapport|soutenance|tout]"; exit 1 ;;
+esac
