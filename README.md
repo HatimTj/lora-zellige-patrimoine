@@ -168,7 +168,8 @@ Colab.
 
 | Dossier | Contenu |
 |---|---|
-| `notebooks/` | Notebooks numérotés : données, baseline, entraînement, évaluation, démo |
+| `notebooks/` | Notebooks numérotés : données, baseline, entraînement, balayages, surapprentissage, démo |
+| `demo/` | Interface Gradio, avec audit de recopie en direct ; voir `demo/README.md` |
 | `src/` | Code réutilisable du projet |
 | `configs/` | Paramètres des expériences, une config par run |
 | `data/` | Script de téléchargement et fiche des données, **sans données lourdes** |
@@ -355,7 +356,8 @@ le FID, et cela reste une contrainte assumée du projet.
 - [x] **Étape 4** — Balayages du nombre de pas, de l'intensité et du rang
 - [x] **Étape 5** — Surapprentissage : 0/28 image au-dessus du seuil de
   recopie, CLIPScore hors domaine −0,20
-- [ ] **Étape 6** — Démo Gradio et vidéo
+- [~] **Étape 6** — Démo Gradio prête (`demo/app.py`, notebook 07) ;
+  vidéo à enregistrer
 - [ ] **Étape 7** — Rapport (6-8 p) et soutenance (10 min)
 
 Feuille de route détaillée et dépendances entre tâches : `docs/contributions.md`.
