@@ -121,8 +121,12 @@ la mesure de style principale du projet.**
 Figures attendues dans `results/figures/` :
 
 - `compromis.png` — fidélité au style vs respect du prompt, un point par configuration
-- `grille_rangs.png` — même prompt, même seed, un rang par ligne
+- `pas.png` — effet du nombre de pas d'entraînement
 - `intensite.png` — effet du curseur d'intensité LoRA de 0 à 1,25
+- `planche_intensite.png` — mêmes prompt et graine, une intensité par colonne
+- `rangs.png` et `planche_rangs.png` — effet du rang, à budget identique
+- `memorisation_seuil.png` — seuil de recopie établi sur le holdout (Étape 5)
+- `plus_proches_voisins.png` — images générées et leur plus proche voisin d'entraînement
 - `hors_domaine.png` — dégradation sur des prompts sans rapport avec le zellige
 
 ## Démarrage rapide
