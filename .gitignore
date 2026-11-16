@@ -45,3 +45,10 @@ venv/
 
 # Systeme
 .DS_Store
+
+# Captures video de la demo : une minute d'ecran pese des dizaines de Mo,
+# au-dela de ce que GitHub accepte confortablement. La video se depose sur
+# Drive ou YouTube non repertorie, et le lien va dans le rapport.
+*.mov
+*.mp4
+*.webm
