@@ -1,0 +1,2100 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guide complet du projet</title>
+<style>
+/* =======================================================================
+   Guide complet — LoRA zellige
+   Fichier unique, sans dépendance externe : il s'ouvre hors connexion,
+   se partage par clé USB ou par mail, et fonctionne sur téléphone.
+   ======================================================================= */
+
+:root {
+  --vert:      #0C8E36;
+  --vert-pale: #E8F4EC;
+  --bleu:      #28558F;
+  --bleu-pale: #EAF0F7;
+  --turquoise: #1F8A8C;
+  --terre:     #B5502E;
+  --terre-pale:#FBEDE8;
+  --safran:    #B8860B;
+
+  --encre:     #16191C;
+  --texte:     #2A2F35;
+  --doux:      #636A72;
+  --pale:      #9AA1A8;
+  --filet:     #E3E7EA;
+  --fond:      #FFFFFF;
+  --fond2:     #F7F8F9;
+  --fond3:     #EFF1F3;
+  --ombre:     rgba(16,20,24,.09);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --vert:      #4ADE80;
+    --vert-pale: #16291E;
+    --bleu:      #7FA9E0;
+    --bleu-pale: #16202E;
+    --turquoise: #5EC8C9;
+    --terre:     #E8906B;
+    --terre-pale:#2C1A14;
+    --safran:    #D6A93C;
+
+    --encre:     #F2F4F6;
+    --texte:     #D5DADF;
+    --doux:      #9AA3AC;
+    --pale:      #6E777F;
+    --filet:     #2A3037;
+    --fond:      #121619;
+    --fond2:     #181D21;
+    --fond3:     #1F252A;
+    --ombre:     rgba(0,0,0,.5);
+  }
+}
+:root[data-theme="dark"] {
+  --vert:      #4ADE80;
+  --vert-pale: #16291E;
+  --bleu:      #7FA9E0;
+  --bleu-pale: #16202E;
+  --turquoise: #5EC8C9;
+  --terre:     #E8906B;
+  --terre-pale:#2C1A14;
+  --safran:    #D6A93C;
+
+  --encre:     #F2F4F6;
+  --texte:     #D5DADF;
+  --doux:      #9AA3AC;
+  --pale:      #6E777F;
+  --filet:     #2A3037;
+  --fond:      #121619;
+  --fond2:     #181D21;
+  --fond3:     #1F252A;
+  --ombre:     rgba(0,0,0,.5);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fond);
+  color: var(--texte);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------- Ossature ---------------- */
+
+.page { display: flex; max-width: 1340px; margin: 0 auto; }
+
+nav {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  width: 266px;
+  flex: 0 0 266px;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 26px 16px 40px 22px;
+  border-right: 1px solid var(--filet);
+}
+nav .marque {
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: -.2px;
+  color: var(--encre);
+  margin-bottom: 3px;
+}
+nav .marque span { color: var(--vert); }
+nav .sous { font-size: 11.5px; color: var(--pale); margin-bottom: 18px; }
+
+nav a {
+  display: block;
+  padding: 5px 10px;
+  margin: 1px 0;
+  font-size: 13.2px;
+  color: var(--doux);
+  text-decoration: none;
+  border-radius: 6px;
+  border-left: 2px solid transparent;
+  line-height: 1.4;
+}
+nav a:hover { background: var(--fond2); color: var(--encre); }
+nav a.actif {
+  color: var(--vert);
+  background: var(--vert-pale);
+  border-left-color: var(--vert);
+  font-weight: 600;
+}
+nav .groupe {
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--pale);
+  margin: 18px 0 5px 10px;
+  font-weight: 700;
+}
+
+main { flex: 1; min-width: 0; padding: 30px 40px 120px 40px; }
+
+/* ---------------- Entête ---------------- */
+
+header.hero {
+  background: linear-gradient(122deg, #0C8E36 0%, #12806A 52%, #1F6E8C 100%);
+  color: #fff;
+  border-radius: 14px;
+  padding: 34px 36px;
+  margin-bottom: 34px;
+  position: relative;
+  overflow: hidden;
+}
+header.hero::after {
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    repeating-linear-gradient(45deg, rgba(255,255,255,.055) 0 11px, transparent 11px 22px),
+    repeating-linear-gradient(-45deg, rgba(255,255,255,.055) 0 11px, transparent 11px 22px);
+  pointer-events: none;
+}
+header.hero h1 {
+  margin: 0 0 10px 0;
+  font-size: 30px;
+  line-height: 1.2;
+  letter-spacing: -.6px;
+  position: relative;
+}
+header.hero p { margin: 0; opacity: .94; font-size: 15.5px; max-width: 65ch; position: relative; }
+header.hero .meta {
+  margin-top: 20px; padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,.26);
+  font-size: 13px; opacity: .9; position: relative;
+}
+
+/* ---------------- Titres ---------------- */
+
+h2 {
+  font-size: 23px;
+  letter-spacing: -.4px;
+  color: var(--encre);
+  margin: 52px 0 14px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--vert);
+  scroll-margin-top: 20px;
+}
+h2:first-of-type { margin-top: 8px; }
+h3 {
+  font-size: 17.5px;
+  color: var(--encre);
+  margin: 30px 0 9px 0;
+  letter-spacing: -.2px;
+  scroll-margin-top: 20px;
+}
+h4 { font-size: 14.5px; color: var(--encre); margin: 18px 0 6px 0; }
+
+p { margin: 0 0 13px 0; }
+a { color: var(--bleu); }
+
+strong, b { color: var(--encre); font-weight: 600; }
+em { color: var(--texte); }
+
+code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .87em;
+  background: var(--fond3);
+  padding: 1.5px 5px;
+  border-radius: 4px;
+  color: var(--encre);
+  word-break: break-word;
+}
+pre {
+  background: var(--fond2);
+  border: 1px solid var(--filet);
+  border-radius: 9px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 14px 0;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+
+ul, ol { margin: 0 0 13px 0; padding-left: 22px; }
+li { margin-bottom: 6px; }
+
+/* ---------------- Blocs ---------------- */
+
+.bloc {
+  border: 1px solid var(--filet);
+  border-left: 3px solid var(--bleu);
+  background: var(--fond2);
+  border-radius: 0 9px 9px 0;
+  padding: 14px 18px;
+  margin: 18px 0;
+}
+.bloc__eti {
+  font-size: 10.5px; letter-spacing: .11em; text-transform: uppercase;
+  font-weight: 700; color: var(--bleu); margin-bottom: 5px;
+}
+.bloc.vert { border-left-color: var(--vert); background: var(--vert-pale); }
+.bloc.vert .bloc__eti { color: var(--vert); }
+.bloc.terre { border-left-color: var(--terre); background: var(--terre-pale); }
+.bloc.terre .bloc__eti { color: var(--terre); }
+.bloc p:last-child { margin-bottom: 0; }
+
+/* ---------------- Chiffres ---------------- */
+
+.chiffres {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+.carte {
+  background: var(--fond2);
+  border: 1px solid var(--filet);
+  border-radius: 11px;
+  padding: 15px 17px;
+}
+.carte__val {
+  font-size: 27px; font-weight: 700; letter-spacing: -.8px;
+  color: var(--vert); line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.carte__val.bleu { color: var(--bleu); }
+.carte__val.terre { color: var(--terre); }
+.carte__val.sobre { color: var(--doux); }
+.carte__eti { font-size: 12.5px; color: var(--doux); margin-top: 6px; line-height: 1.45; }
+
+/* ---------------- Tableaux ---------------- */
+
+.tableau { overflow-x: auto; margin: 16px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 14px;
+        font-variant-numeric: tabular-nums; min-width: 420px; }
+th {
+  text-align: right; font-size: 12px; font-weight: 600; color: var(--doux);
+  padding: 8px 11px; border-bottom: 1.5px solid var(--encre); white-space: nowrap;
+}
+td { text-align: right; padding: 8px 11px; border-bottom: 1px solid var(--filet); }
+th:first-child, td:first-child { text-align: left; }
+tbody tr:last-child td { border-bottom: 1.5px solid var(--filet); }
+tr.phare td { background: var(--vert-pale); font-weight: 600; }
+.hausse { color: var(--vert); font-weight: 600; }
+.baisse { color: var(--terre); font-weight: 600; }
+
+/* ---------------- Étapes ---------------- */
+
+.etape {
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  gap: 18px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--filet);
+}
+.etape__num {
+  width: 44px; height: 44px; border-radius: 11px;
+  background: var(--vert); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 17px;
+}
+.etape__num.gris { background: var(--doux); }
+.etape h3 { margin-top: 0; }
+.etape__quoi {
+  font-size: 12.5px; color: var(--pale); text-transform: uppercase;
+  letter-spacing: .07em; font-weight: 700; margin-bottom: 4px;
+}
+
+/* ---------------- Dépliants ---------------- */
+
+details {
+  border: 1px solid var(--filet);
+  border-radius: 10px;
+  margin: 9px 0;
+  background: var(--fond2);
+  overflow: hidden;
+}
+details[open] { background: var(--fond); box-shadow: 0 1px 7px var(--ombre); }
+summary {
+  cursor: pointer;
+  padding: 12px 16px 12px 40px;
+  font-weight: 600;
+  color: var(--encre);
+  font-size: 15px;
+  position: relative;
+  list-style: none;
+  line-height: 1.45;
+}
+summary::-webkit-details-marker { display: none; }
+summary::before {
+  content: "+";
+  position: absolute; left: 16px; top: 11px;
+  width: 17px; height: 17px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--vert); font-weight: 700; font-size: 17px;
+}
+details[open] summary::before { content: "−"; }
+summary:hover { background: var(--fond3); }
+.corps { padding: 2px 18px 16px 40px; font-size: 14.6px; }
+.corps p:last-child, .corps ul:last-child { margin-bottom: 0; }
+
+/* ---------------- Journal des erreurs ---------------- */
+
+.erreur { margin: 11px 0; }
+.erreur summary { padding-left: 16px; }
+.erreur summary::before { display: none; }
+.erreur summary .lot {
+  display: inline-block;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .07em;
+  text-transform: uppercase;
+  padding: 2px 8px; border-radius: 20px;
+  margin-right: 9px;
+  vertical-align: 1.5px;
+  background: var(--fond3); color: var(--doux);
+}
+.lot.collecte  { background: var(--bleu-pale);  color: var(--bleu); }
+.lot.donnees   { background: var(--bleu-pale);  color: var(--bleu); }
+.lot.train     { background: var(--terre-pale); color: var(--terre); }
+.lot.colab     { background: var(--terre-pale); color: var(--terre); }
+.lot.mesure    { background: var(--vert-pale);  color: var(--vert); }
+.lot.livrable  { background: var(--fond3);      color: var(--safran); }
+.lot.depot     { background: var(--fond3);      color: var(--doux); }
+
+.erreur .corps { padding-left: 18px; }
+.sympt {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12.6px;
+  background: var(--fond3);
+  border-left: 3px solid var(--terre);
+  padding: 9px 13px;
+  border-radius: 0 6px 6px 0;
+  margin: 10px 0 13px 0;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--encre);
+}
+.pourquoi { margin-bottom: 11px; }
+.pourquoi b, .lecon b { color: var(--encre); }
+.lecon {
+  border-top: 1px dashed var(--filet);
+  padding-top: 10px;
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--doux);
+}
+.lecon b { color: var(--vert); }
+
+/* ---------------- Recherche ---------------- */
+
+.recherche { position: relative; margin: 16px 0 8px 0; }
+.recherche input {
+  width: 100%;
+  padding: 11px 15px 11px 38px;
+  font-size: 15px;
+  font-family: inherit;
+  border: 1px solid var(--filet);
+  background: var(--fond2);
+  color: var(--encre);
+  border-radius: 9px;
+  outline: none;
+}
+.recherche input:focus { border-color: var(--vert); background: var(--fond); }
+.recherche::before {
+  content: "⌕";
+  position: absolute; left: 14px; top: 8px;
+  font-size: 19px; color: var(--pale);
+}
+.compteur { font-size: 13px; color: var(--pale); margin-bottom: 14px; }
+
+/* ---------------- Bascule thème ---------------- */
+
+.bascule {
+  position: fixed; top: 14px; right: 16px; z-index: 50;
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 1px solid var(--filet);
+  background: var(--fond);
+  color: var(--doux);
+  cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 9px var(--ombre);
+}
+.bascule:hover { color: var(--vert); border-color: var(--vert); }
+
+/* ---------------- Divers ---------------- */
+
+.chemin {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px; color: var(--vert); font-weight: 600;
+}
+.pastille {
+  display: inline-block; font-size: 11px; font-weight: 700;
+  padding: 2px 8px; border-radius: 20px;
+  background: var(--vert-pale); color: var(--vert);
+  letter-spacing: .04em;
+}
+.fin {
+  margin-top: 60px; padding-top: 18px;
+  border-top: 1px solid var(--filet);
+  font-size: 13px; color: var(--pale);
+}
+.flux { font-size: 13.5px; line-height: 2; font-family: ui-monospace, Menlo, monospace;
+        background: var(--fond2); border: 1px solid var(--filet);
+        border-radius: 9px; padding: 16px 18px; overflow-x: auto; margin: 16px 0; }
+
+@media (max-width: 900px) {
+  nav { display: none; }
+  main { padding: 18px 16px 90px 16px; }
+  header.hero { padding: 24px 20px; }
+  header.hero h1 { font-size: 23px; }
+  .etape { grid-template-columns: 1fr; gap: 8px; }
+  .etape__num { width: 36px; height: 36px; font-size: 15px; }
+  body { font-size: 15.5px; }
+}
+</style>
+</head>
+<body>
+
+<button class="bascule" id="bascule" title="Thème clair ou sombre">◐</button>
+
+<div class="page">
+
+<nav id="nav">
+  <div class="marque">Guide <span>complet</span></div>
+  <div class="sous">LoRA zellige · Projet 5</div>
+
+  <div class="groupe">Comprendre</div>
+  <a href="#bref">En bref</a>
+  <a href="#mots">Le vocabulaire</a>
+  <a href="#comment">Comment ça marche</a>
+
+  <div class="groupe">Le parcours</div>
+  <a href="#etapes">Les 8 étapes</a>
+  <a href="#protocole">Le protocole de mesure</a>
+  <a href="#resultats">Tous les résultats</a>
+
+  <div class="groupe">Le vécu</div>
+  <a href="#erreurs">Journal des erreurs</a>
+  <a href="#questions">Questions &amp; réponses</a>
+
+  <div class="groupe">Références</div>
+  <a href="#depot">Le dépôt, fichier par fichier</a>
+  <a href="#troisminutes">Tout réexpliquer en 3 min</a>
+</nav>
+
+<main>
+
+<header class="hero">
+  <h1>Apprendre le zellige à Stable Diffusion</h1>
+  <p>
+    Tout le projet, du premier commit au rapport final : ce qu'on a fait,
+    pourquoi, ce qu'on a mesuré, les vingt-sept erreurs rencontrées en chemin,
+    et les réponses aux questions qu'on peut nous poser.
+  </p>
+  <div class="meta">
+    EMSI · 5<sup>e</sup> année · IA générative visuelle · Projet 5 &nbsp;·&nbsp;
+    Hatim Tajimi · Houssam El Moutaqui · Saad Belekbira
+  </div>
+</header>
+
+<!-- ================================================================= -->
+<h2 id="bref">En bref</h2>
+
+<p>
+Stable Diffusion est un modèle qui fabrique des images à partir d'une phrase. Il
+a appris sur des milliards d'images du web, donc il connaît « chat »,
+« cathédrale », « coucher de soleil ». Mais le <b>zellige</b> — la mosaïque
+marocaine en terre cuite émaillée, découpée à la main et assemblée en étoiles —
+il ne le connaît pas vraiment. Demande-lui, il te rend un carrelage oriental
+vague : la couleur est plausible, la géométrie ne l'est pas.
+</p>
+
+<p>
+On lui a appris, avec <b>29 photographies</b> et un fichier de <b>6 mégaoctets</b>.
+Puis — et c'est là que le projet devient autre chose qu'un tutoriel — on a
+<b>mesuré</b> ce qu'il avait vraiment appris, ce que ça avait cassé, et s'il
+s'était contenté de recopier.
+</p>
+
+<div class="chiffres">
+  <div class="carte">
+    <div class="carte__val">+23,5 %</div>
+    <div class="carte__eti">de fidélité au style, sans perdre l'obéissance au texte</div>
+  </div>
+  <div class="carte">
+    <div class="carte__val terre">−7,6 %</div>
+    <div class="carte__eti">de diversité — le coût, qu'on publie au lieu de le taire</div>
+  </div>
+  <div class="carte">
+    <div class="carte__val">0 / 28</div>
+    <div class="carte__eti">image au-dessus du seuil de recopie</div>
+  </div>
+  <div class="carte">
+    <div class="carte__val bleu">2 h 24</div>
+    <div class="carte__eti">de GPU gratuit, projet entier</div>
+  </div>
+</div>
+
+<div class="bloc vert">
+  <div class="bloc__eti">Si tu ne retiens qu'une phrase</div>
+  On ne cherchait pas à faire de belles images, mais à produire une
+  <b>affirmation défendable</b>. « La LoRA améliore le style de 23,5 % mesuré
+  sur DINOv2, au prix de 7,6 % de diversité, sur 40 images et des prompts figés
+  avant l'entraînement » — ça, on peut l'attaquer, le vérifier, le reproduire.
+  « Regardez, c'est joli » n'est pas une affirmation.
+</div>
+
+<!-- ================================================================= -->
+<h2 id="mots">Le vocabulaire, pour suivre</h2>
+
+<p>Huit mots suffisent. Si tu expliques à quelqu'un, commence par ceux-là.</p>
+
+<details>
+  <summary>Stable Diffusion</summary>
+  <div class="corps">
+    <p>
+      Un modèle qui part d'une image de bruit pur et la « débruite » petit à
+      petit jusqu'à obtenir une image cohérente avec la phrase qu'on lui donne.
+      La partie qui fait ce travail s'appelle le <b>U-Net</b> et contient
+      <b>860 millions de paramètres</b>. Nous utilisons la version 1.5, qui
+      travaille en 512 × 512.
+    </p>
+  </div>
+</details>
+
+<details>
+  <summary>LoRA — adaptation de faible rang</summary>
+  <div class="corps">
+    <p>
+      Une façon d'apprendre quelque chose de nouveau à un gros modèle sans y
+      toucher. On <b>gèle</b> les poids d'origine et on ajoute à côté une petite
+      correction :
+    </p>
+    <pre><code>W_final = W_gelé  +  B · A</code></pre>
+    <p>
+      <code>A</code> et <code>B</code> sont deux matrices très fines.
+      <code>A</code> comprime l'information sur 8 dimensions, <code>B</code> la
+      redéploie. Résultat : <b>1,59 million de paramètres entraînés</b> au lieu
+      de 860 millions, soit <b>0,19 %</b>, et un fichier de 6,1 Mo au lieu de
+      1,6 Go.
+    </p>
+  </div>
+</details>
+
+<details>
+  <summary>Rang</summary>
+  <div class="corps">
+    <p>
+      Le nombre de dimensions sur lesquelles la correction est comprimée. Nous
+      avons utilisé <b>8</b>, et testé 4, 16 et 32. Un rang plus grand donne plus
+      de capacité, mais aussi plus de place pour mémoriser. Résultat mesuré : le
+      rang ne coûte <b>ni temps ni mémoire</b>, seulement de l'espace disque.
+    </p>
+  </div>
+</details>
+
+<details>
+  <summary>Token déclencheur — <code>zlj_style</code></summary>
+  <div class="corps">
+    <p>
+      Un mot inventé, qui ne veut rien dire. Toutes nos légendes d'entraînement
+      commencent par lui. Pourquoi ? Si on avait écrit « zellige », le modèle
+      aurait mélangé ce qu'il croit déjà savoir de ce mot avec ce qu'on lui
+      enseigne. Si on avait écrit « tiles », on aurait abîmé sa compréhension de
+      « tiles » pour tous les autres usages.
+    </p>
+    <p>
+      Un mot vide de sens est un <b>crochet propre</b> : le style s'y accroche et
+      nulle part ailleurs. À l'usage, tu écris <code>zlj_style, a fountain in a
+      riad</code> et tu obtiens une fontaine en zellige. Sans le mot, le modèle
+      redevient normal — et nous l'avons vérifié.
+    </p>
+  </div>
+</details>
+
+<details>
+  <summary>Graine (seed)</summary>
+  <div class="corps">
+    <p>
+      Le nombre qui fixe le hasard. Même graine + même prompt + même modèle =
+      <b>exactement la même image</b>. C'est ce qui rend les comparaisons
+      honnêtes : on compare deux modèles sur le même tirage, pas sur deux
+      tirages différents.
+    </p>
+  </div>
+</details>
+
+<details>
+  <summary>Holdout — les images réservées</summary>
+  <div class="corps">
+    <p>
+      8 photographies de zellige mises de côté dès le départ. Le modèle ne les a
+      <b>jamais vues</b>. Elles servent à deux choses : mesurer si le style
+      produit ressemble à du vrai zellige, et — surtout — établir le seuil
+      au-delà duquel on peut parler de recopie.
+    </p>
+  </div>
+</details>
+
+<details>
+  <summary>DINOv2, CLIP, LPIPS</summary>
+  <div class="corps">
+    <p>
+      Trois façons de comparer des images par ordinateur.
+    </p>
+    <ul>
+      <li><b>CLIP</b> a appris à relier images et mots. Il voit surtout
+          le <i>contenu</i> : « une mosaïque ». On s'en sert pour vérifier que
+          l'image correspond bien à la phrase (CLIPScore).</li>
+      <li><b>DINOv2</b> n'a jamais vu de texte. Il a appris en comparant des
+          images entre elles, donc il voit la <i>texture et la géométrie</i>.
+          C'est notre mesure de style principale.</li>
+      <li><b>LPIPS</b> mesure à quel point deux images sont perçues comme
+          différentes. On s'en sert pour la diversité.</li>
+    </ul>
+  </div>
+</details>
+
+<details>
+  <summary>Surapprentissage</summary>
+  <div class="corps">
+    <p>
+      Quand un modèle, au lieu d'apprendre une règle générale, apprend par cœur
+      ses exemples. Avec seulement 29 images, c'est le risque numéro un. Un
+      modèle qui recopie obtiendrait un <b>excellent score de style</b> — une
+      copie ressemble forcément à l'original — d'où la nécessité d'une mesure
+      séparée.
+    </p>
+  </div>
+</details>
+
+<!-- ================================================================= -->
+<h2 id="comment">Comment ça marche, vraiment</h2>
+
+<h3>Pourquoi ne pas réentraîner le modèle entier ?</h3>
+<p>
+Trois raisons, et elles se cumulent :
+</p>
+<ul>
+  <li><b>La mémoire.</b> Reprendre 860 millions de paramètres demanderait des
+      dizaines de gigaoctets. Nous en avons 12, sur un GPU gratuit.</li>
+  <li><b>La taille.</b> Un fichier de 1,6 Go par style. Impossible à partager,
+      impossible à mettre dans un dépôt Git.</li>
+  <li><b>L'oubli.</b> Avec 29 images, le modèle oublierait tout le reste. Il ne
+      saurait plus faire qu'une seule chose.</li>
+</ul>
+
+<h3>Le pari de la LoRA</h3>
+<p>
+Un style, ce n'est pas 860 millions d'informations indépendantes. C'est quelques
+régularités — une palette, une symétrie, une façon de poser la lumière — qui
+tiennent dans <b>très peu de dimensions</b>. La LoRA fait ce pari et nos mesures
+le confirment : 0,19 % des paramètres suffisent à déplacer le style de 23,5 %.
+</p>
+
+<h3>Le principe des légendes, qui n'est pas évident</h3>
+<div class="bloc">
+  <div class="bloc__eti">La règle</div>
+  <p>
+    Les légendes ne décrivent <b>que ce qui varie</b> d'une image à l'autre :
+    la couleur et la composition. <b>Jamais le style lui-même.</b>
+  </p>
+  <p style="margin-bottom:0">
+    <code>zlj_style, blue and white tilework, eight-pointed star pattern</code>
+  </p>
+</div>
+<p>
+Pourquoi ? Si toutes les légendes disaient « mosaïque géométrique », le modèle
+rattacherait le style <b>à ces mots-là</b> plutôt qu'au déclencheur.
+<b>Ce qui est constant dans les images et absent des légendes est exactement ce
+que le token absorbe.</b> C'est contre-intuitif, et c'est le cœur du travail de
+légendage.
+</p>
+
+<h3>La chaîne complète</h3>
+<div class="flux">
+Wikimedia Commons  →  367 candidats<br>
+&nbsp;&nbsp;&nbsp;&nbsp;↓ filtre licences + score de pertinence + tri humain<br>
+37 images retenues  →  recadrage 512×512  →  dédoublonnage perceptuel<br>
+&nbsp;&nbsp;&nbsp;&nbsp;↓ découpage figé<br>
+29 entraînement &nbsp;+&nbsp; 8 holdout<br>
+&nbsp;&nbsp;&nbsp;&nbsp;↓ légendes : zlj_style + couleur + composition<br>
+entraînement LoRA (1000 pas, 49 min)  →  6,1 Mo<br>
+&nbsp;&nbsp;&nbsp;&nbsp;↓ 10 prompts × 4 graines, figés d'avance<br>
+40 images par configuration  →  CLIPScore · DINOv2 · LPIPS · plus proche voisin<br>
+&nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+results.csv  →  figures  →  rapport
+</div>
+
+<!-- ================================================================= -->
+<h2 id="etapes">Les 8 étapes, une par une</h2>
+
+<div class="etape">
+  <div><div class="etape__num gris">0</div></div>
+  <div>
+    <div class="etape__quoi">Cadrage</div>
+    <h3>Décider avant de coder</h3>
+    <p>
+      Choix du concept (le zellige), du mot déclencheur
+      (<code>zlj_style</code>), du modèle de base, de la résolution, des
+      licences acceptées. Création du dépôt Git et de l'arborescence imposée par
+      le sujet.
+    </p>
+    <p>
+      <b>Pourquoi d'abord :</b> ces décisions sont écrites dans
+      <span class="chemin">configs/base.yaml</span> et datées. Changer le
+      déclencheur en cours de route invaliderait tout ce qui a été mesuré avant.
+    </p>
+  </div>
+</div>
+
+<div class="etape">
+  <div><div class="etape__num">1</div></div>
+  <div>
+    <div class="etape__quoi">Données</div>
+    <h3>367 candidats, 37 retenus</h3>
+    <p>
+      Collecte automatique sur Wikimedia Commons par son API, avec récupération
+      de l'auteur, de la licence et de l'URL pour chaque image. Filtre sur les
+      licences, score de pertinence automatique, puis <b>tri humain</b>.
+    </p>
+    <p>
+      Recadrage carré en 512 × 512 (on recadre, on ne déforme jamais),
+      dédoublonnage par <b>empreinte perceptuelle</b> — une petite signature qui
+      détecte deux photos quasi identiques même si les fichiers diffèrent.
+      Découpage figé : 29 entraînement, 8 holdout.
+    </p>
+    <div class="bloc terre">
+      <div class="bloc__eti">Ce que le tri automatique a laissé passer</div>
+      Une <b>capture d'écran d'un logiciel appelé « Zellij »</b> : titre
+      pertinent, format carré, licence libre. Aucun filtre raisonnable n'attrape
+      ça. Dix minutes de relecture à l'œil ont été nécessaires, et on le raconte
+      dans le rapport plutôt que de le cacher.
+    </div>
+  </div>
+</div>
+
+<div class="etape">
+  <div><div class="etape__num">2</div></div>
+  <div>
+    <div class="etape__quoi">Baseline et métriques</div>
+    <h3>Mesurer avant de toucher à quoi que ce soit</h3>
+    <p>
+      Écriture des quatre métriques, puis <b>gel des 10 prompts et des 4
+      graines</b>, puis génération des 40 images du modèle non modifié. Dans cet
+      ordre, et avant tout entraînement.
+    </p>
+    <p>
+      <b>Pourquoi cet ordre :</b> si on choisit les prompts après avoir vu ce que
+      la LoRA sait faire, on choisit ceux qui l'avantagent. Les figer d'avance,
+      c'est s'interdire cette tricherie — y compris involontaire.
+    </p>
+  </div>
+</div>
+
+<div class="etape">
+  <div><div class="etape__num">3</div></div>
+  <div>
+    <div class="etape__quoi">Entraînement</div>
+    <h3>La première LoRA</h3>
+    <p>
+      Rang 8, 1000 pas, 49 minutes sur un Colab T4. Précision fp16, optimiseur
+      AdamW en 8 bits, <i>gradient checkpointing</i> — trois techniques pour
+      tenir dans 4,66 Go de VRAM.
+    </p>
+    <p>
+      <b>Résultat :</b> style 0,274 → 0,339 sur DINOv2, soit <b>+23,5 %</b>,
+      pour un fichier de 6,1 Mo.
+    </p>
+  </div>
+</div>
+
+<div class="etape">
+  <div><div class="etape__num">4</div></div>
+  <div>
+    <div class="etape__quoi">Balayages</div>
+    <h3>Faire varier un réglage à la fois</h3>
+    <p>
+      Trois questions : combien de pas d'entraînement, quelle intensité, quel
+      rang. Chaque configuration est jugée sur les <b>mêmes 40 images</b>.
+    </p>
+    <ul>
+      <li><b>Pas :</b> 500 suffisent. +15 % entre 250 et 500, puis +3 % seulement.</li>
+      <li><b>Intensité :</b> ce n'est pas une rampe, c'est un <b>seuil</b> autour
+          de 1,0.</li>
+      <li><b>Rang :</b> ne coûte ni temps ni mémoire — mais notre balayage est
+          sous-entraîné et ne conclut pas sur le meilleur rang.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="etape">
+  <div><div class="etape__num">5</div></div>
+  <div>
+    <div class="etape__quoi">Surapprentissage</div>
+    <h3>A-t-il appris, ou recopié ?</h3>
+    <p>
+      L'étape la plus intéressante du projet. On ne décrète pas le seuil : on le
+      <b>mesure sur le holdout</b>. Les 8 images jamais vues donnent la
+      ressemblance normale entre deux photos indépendantes de zellige.
+    </p>
+    <p>
+      <b>Résultat :</b> seuil à 0,908, aucune des 28 images d'évaluation ne
+      l'atteint, et la distribution produite est <i>plus basse</i> que celle du
+      holdout.
+    </p>
+  </div>
+</div>
+
+<div class="etape">
+  <div><div class="etape__num">6</div></div>
+  <div>
+    <div class="etape__quoi">Démonstration</div>
+    <h3>Une démo qui s'audite elle-même</h3>
+    <p>
+      Interface Gradio : avant / après côte à côte, curseur d'intensité,
+      interrupteur sur le déclencheur. Et à chaque image produite, la similarité
+      à l'image d'entraînement la plus proche, placée sur l'échelle de l'étape 5.
+    </p>
+    <p>
+      Deux économies tirées des mesures précédentes : un <b>seul pipeline</b>
+      pour les deux colonnes (l'intensité 0 reproduit le modèle d'origine), et
+      l'image de base <b>mise en cache</b> pour que bouger le curseur soit
+      instantané.
+    </p>
+  </div>
+</div>
+
+<div class="etape" style="border-bottom:none">
+  <div><div class="etape__num">7</div></div>
+  <div>
+    <div class="etape__quoi">Livrables</div>
+    <h3>Rapport, soutenance, fiches</h3>
+    <p>
+      Rapport de 8 pages avec couverture EMSI, 16 diapositives en 16:9, fiche du
+      modèle, réflexion éthique. Tout est écrit en HTML et imprimé en PDF, pour
+      que les sources restent modifiables et versionnables.
+    </p>
+  </div>
+</div>
+
+<!-- ================================================================= -->
+<h2 id="protocole">Le protocole de mesure</h2>
+
+<p>
+C'est ce qui sépare ce projet d'un tutoriel suivi ligne à ligne. Quatre
+questions, quatre mesures qui ne se recouvrent pas.
+</p>
+
+<div class="tableau">
+<table>
+  <thead><tr><th>Question</th><th style="text-align:left">Mesure</th><th style="text-align:left">Comment on la lit</th></tr></thead>
+  <tbody>
+    <tr><td>Le style est-il appris ?</td><td style="text-align:left">DINOv2, CLIP-I</td><td style="text-align:left">similarité moyenne aux 8 images réservées</td></tr>
+    <tr><td>Le texte est-il respecté ?</td><td style="text-align:left">CLIPScore</td><td style="text-align:left">accord entre l'image et la phrase</td></tr>
+    <tr><td>Les images varient-elles ?</td><td style="text-align:left">LPIPS</td><td style="text-align:left">distance moyenne entre les productions</td></tr>
+    <tr><td>Le modèle recopie-t-il ?</td><td style="text-align:left">plus proche voisin</td><td style="text-align:left">similarité <i>maximale</i> à l'entraînement</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+Les 10 prompts se répartissent en trois familles, et c'est voulu :
+<b>domaine</b> (4 prompts de zellige), <b>transfert</b> (3 prompts sur une
+tasse, un skateboard — pour distinguer un style appris d'une recopie de
+panneaux), <b>hors domaine</b> (3 prompts sans rapport et sans déclencheur —
+pour mesurer ce qui a été cassé).
+</p>
+
+<div class="bloc terre">
+  <div class="bloc__eti">Pourquoi nous n'utilisons pas le FID</div>
+  Le FID est la métrique habituelle des modèles génératifs, et son absence doit
+  être justifiée. Il est <b>biaisé en dessous de quelques milliers d'images de
+  référence</b>. Nous en avons 29. Le publier donnerait un chiffre d'apparence
+  rigoureuse mais vide de sens. Si on te pose la question, c'est la réponse.
+</div>
+
+<div class="bloc vert">
+  <div class="bloc__eti">Une découverte de méthode</div>
+  Entre la baseline et la LoRA, <b>CLIP-I bouge de +3,5 %, DINOv2 de +23,5 %</b>.
+  CLIP est entraîné à relier images et mots, donc il voit le contenu ; DINOv2
+  n'a jamais vu de texte, il voit la texture et la géométrie. Pour un transfert
+  de style, <b>CLIP-I sature et DINOv2 discrimine</b>. On le démontre sur nos
+  propres mesures, pas en citant un article.
+</div>
+
+<!-- ================================================================= -->
+<h2 id="resultats">Tous les résultats</h2>
+
+<h3>Le résultat principal</h3>
+<div class="tableau">
+<table>
+  <thead><tr><th>Mesure</th><th>Modèle d'origine</th><th>LoRA rang 8</th><th>Écart</th></tr></thead>
+  <tbody>
+    <tr class="phare"><td>Style — DINOv2</td><td>0,2741</td><td>0,3386</td><td><span class="hausse">+23,5 %</span></td></tr>
+    <tr><td>Style — CLIP-I</td><td>0,7061</td><td>0,7310</td><td><span class="hausse">+3,5 %</span></td></tr>
+    <tr><td>Prompt — domaine</td><td>34,27</td><td>34,40</td><td>+0,4 %</td></tr>
+    <tr><td>Prompt — transfert</td><td>30,78</td><td>30,28</td><td>−1,6 %</td></tr>
+    <tr><td>Prompt — hors domaine</td><td>33,14</td><td>32,94</td><td>−0,6 %</td></tr>
+    <tr><td>Diversité — LPIPS</td><td>0,6464</td><td>0,5968</td><td><span class="baisse">−7,6 %</span></td></tr>
+    <tr><td>Mémorisation maximale</td><td>0,7373</td><td>0,8446</td><td><span class="baisse">+14,6 %</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>Combien de pas d'entraînement</h3>
+<div class="tableau">
+<table>
+  <thead><tr><th>Pas</th><th>Style DINOv2</th><th>Mémorisation</th><th>Diversité</th><th>Durée</th></tr></thead>
+  <tbody>
+    <tr><td>250</td><td>0,2853</td><td>0,7866</td><td>0,5990</td><td>12 min</td></tr>
+    <tr class="phare"><td>500</td><td>0,3283</td><td>0,8103</td><td>0,5880</td><td>25 min</td></tr>
+    <tr><td>750</td><td>0,3341</td><td>0,8506</td><td>0,5917</td><td>37 min</td></tr>
+    <tr><td>1000</td><td>0,3386</td><td>0,8446</td><td>0,5968</td><td>49 min</td></tr>
+  </tbody>
+</table>
+</div>
+<p>
+<b>+15 % entre 250 et 500 pas, puis +3 % sur les 500 suivants</b> — pendant que
+la mémorisation, elle, continue de monter. Au-delà de 500, on échange 24 minutes
+de GPU et un risque de recopie contre un gain marginal.
+</p>
+
+<h3>L'intensité : un seuil, pas une rampe</h3>
+<div class="tableau">
+<table>
+  <thead><tr><th>Intensité</th><th>0 (origine)</th><th>0,25</th><th>0,50</th><th>0,75</th><th>1,00</th><th>1,25</th></tr></thead>
+  <tbody>
+    <tr><td>Style DINOv2</td><td>0,274</td><td>0,275</td><td>0,294</td><td>0,274</td><td><b>0,339</b></td><td>0,346</td></tr>
+    <tr><td>Diversité</td><td>0,646</td><td>0,633</td><td>0,616</td><td>0,611</td><td>0,597</td><td>0,572</td></tr>
+  </tbody>
+</table>
+</div>
+<p>
+Regarde la deuxième ligne : la diversité décroît <b>parfaitement</b> avec
+l'intensité. La LoRA agit donc bien dès 0,25 — elle modifie la palette et la
+texture. Mais elle n'impose la <b>géométrie</b> qu'à partir de 1,0. Visuellement :
+jusqu'à 0,75 un grand carreau peint, à 1,00 un champ fragmenté en tesselles
+assemblées. L'image et la mesure basculent au même endroit.
+</p>
+
+<h3>Le rang</h3>
+<div class="tableau">
+<table>
+  <thead><tr><th>Rang</th><th>Paramètres</th><th>Durée</th><th>VRAM</th><th>Fichier</th><th>Style</th></tr></thead>
+  <tbody>
+    <tr><td>4</td><td>797 k</td><td>9,5 min</td><td>4,65 Go</td><td>3,1 Mo</td><td>0,2740</td></tr>
+    <tr><td>8</td><td>1,59 M</td><td>9,6 min</td><td>4,66 Go</td><td>6,1 Mo</td><td>0,2767</td></tr>
+    <tr><td>16</td><td>3,19 M</td><td>9,7 min</td><td>4,67 Go</td><td>12,2 Mo</td><td>0,2775</td></tr>
+    <tr><td>32</td><td>6,38 M</td><td>9,6 min</td><td>4,70 Go</td><td>24,4 Mo</td><td><b>0,3028</b></td></tr>
+  </tbody>
+</table>
+</div>
+<div class="bloc terre">
+  <div class="bloc__eti">Attention à la lecture — question probable du jury</div>
+  Ce balayage tourne à <b>800 passages</b>, soit moins que le plus petit point du
+  balayage des pas (1000). Les quatre rangs sont donc mesurés <b>avant le seuil
+  où le style apparaît</b>. Si 4, 8 et 16 restent au niveau du modèle d'origine,
+  c'est <b>faute d'avoir appris</b>, pas parce que le rang serait sans effet.
+  Ce qu'on peut affirmer : à budget égal et court, le rang 32 décolle le premier.
+</div>
+
+<h3>Le test de recopie</h3>
+<div class="tableau">
+<table>
+  <thead><tr><th>Similarité au plus proche voisin</th><th>min</th><th>médiane</th><th>moyenne</th><th>max</th></tr></thead>
+  <tbody>
+    <tr><td>Holdout — 8 photos jamais vues</td><td>0,457</td><td>0,733</td><td>0,722</td><td><b>0,908</b></td></tr>
+    <tr><td>Images produites — 28 prompts</td><td>0,123</td><td>0,601</td><td>0,491</td><td>0,845</td></tr>
+  </tbody>
+</table>
+</div>
+<p>
+<b>Aucune image produite n'atteint 0,908.</b> Et mieux : la distribution produite
+est globalement <i>plus basse</i> que celle du holdout. Une image engendrée par le
+modèle ressemble <b>moins</b> au jeu d'entraînement qu'une vraie photo de zellige
+qu'il n'a jamais vue.
+</p>
+<p>
+Par honnêteté nous donnons aussi la lecture sévère, un maximum sur 8 échantillons
+étant une barre permissive : à la <b>moyenne</b> du holdout (0,722),
+<b>3 images sur 28 dépassent</b>. Ces trois-là partagent la composition de leur
+voisin — une rosace, un éclatement en étoile — mais ni la palette, ni le nombre
+de branches, ni le détail des tesselles.
+</p>
+
+<!-- ================================================================= -->
+<h2 id="erreurs">Journal des erreurs</h2>
+
+<p>
+Vingt-sept problèmes rencontrés, du premier jour au rapport final. Chacun avec
+son message exact, sa cause et sa correction. C'est la partie la plus utile si
+tu veux refaire le projet — ou si on te demande en soutenance ce qui a été
+difficile.
+</p>
+
+<div class="recherche">
+  <input type="search" id="chercheErr" placeholder="Filtrer : tape « colab », « git », « licence »…">
+</div>
+<div class="compteur" id="compteurErr"></div>
+
+<div id="listeErr">
+
+<details class="erreur">
+  <summary><span class="lot collecte">Collecte</span>Lire le PDF du sujet : <code>pdftoppm not installed</code></summary>
+  <div class="corps">
+    <div class="sympt">Error: pdftoppm not installed, cannot convert PDF to images</div>
+    <p class="pourquoi"><b>Pourquoi :</b> l'outil système pour convertir un PDF
+      en images n'était pas présent sur la machine.</p>
+    <p><b>Correction :</b> extraire le texte avec la bibliothèque Python
+      <code>pypdf</code> plutôt que de passer par des images.</p>
+    <div class="lecon"><b>Leçon :</b> avant d'installer un outil système,
+      regarder si une bibliothèque déjà disponible fait le travail.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot collecte">Collecte</span>HTTPS refusé : <code>CERTIFICATE_VERIFY_FAILED</code></summary>
+  <div class="corps">
+    <div class="sympt">ssl.SSLCertVerificationError: [SSL: CERTIFICATE_VERIFY_FAILED]
+certificate verify failed: unable to get local issuer certificate</div>
+    <p class="pourquoi"><b>Pourquoi :</b> le Python installé depuis python.org
+      sur macOS n'utilise pas les certificats du système. Il ne peut donc
+      vérifier aucun site en HTTPS.</p>
+    <p><b>Correction :</b> fournir explicitement le magasin de certificats de
+      <code>certifi</code> :</p>
+    <pre><code>contexte = ssl.create_default_context(cafile=certifi.where())</code></pre>
+    <div class="lecon"><b>Leçon :</b> une erreur SSL n'est presque jamais un
+      problème du serveur distant. C'est la configuration locale.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot collecte">Collecte</span>Réponse de l'API mal lue : <code>string indices must be integers</code></summary>
+  <div class="corps">
+    <div class="sympt">TypeError: string indices must be integers, not 'str'</div>
+    <p class="pourquoi"><b>Pourquoi :</b> l'API de Wikimedia a deux formats de
+      réponse. En <code>formatversion=1</code> les pages arrivent dans un
+      <i>dictionnaire</i> indexé par identifiant ; en
+      <code>formatversion=2</code>, dans une <i>liste</i>. Notre code parcourait
+      une liste, l'API renvoyait un dictionnaire — donc on itérait sur des
+      clés, qui sont des chaînes.</p>
+    <p><b>Correction :</b> demander explicitement
+      <code>formatversion=2</code> à chaque requête.</p>
+    <div class="lecon"><b>Leçon :</b> fixer explicitement la version d'une API.
+      Ne jamais dépendre de son défaut, qui peut changer.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot collecte">Collecte</span>Wikimedia nous bloque : <code>HTTP 429 Too Many Requests</code></summary>
+  <div class="corps">
+    <div class="sympt">urllib.error.HTTPError: HTTP Error 429: Too Many Requests</div>
+    <p class="pourquoi"><b>Pourquoi :</b> Colab fait sortir des milliers
+      d'utilisateurs par les mêmes adresses IP. Wikimedia limite le débit par
+      IP : on payait pour tout le monde.</p>
+    <p><b>Correction :</b> trois choses. Une attente progressive de 5 à 120
+      secondes qui <b>respecte l'en-tête <code>Retry-After</code></b> envoyé par
+      le serveur ; une pause de 1,5 s entre deux requêtes ; et surtout un mode
+      <code>--reconstruire</code> qui retélécharge les fichiers exacts listés
+      dans <code>licenses.csv</code>, en quelques requêtes au lieu de
+      plusieurs centaines.</p>
+    <div class="lecon"><b>Leçon :</b> quand un serveur dit « trop vite », il dit
+      aussi <i>combien de temps attendre</i>. Lire l'en-tête plutôt que de
+      deviner. Et concevoir un chemin qui demande peu.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot collecte">Collecte</span>Noms de fichiers cassés par les paramètres d'URL</summary>
+  <div class="corps">
+    <div class="sympt">zlj_001.org&amp;utm_campaign=Wikimedia&amp;utm_medium=referral</div>
+    <p class="pourquoi"><b>Pourquoi :</b> l'extension était déduite de la fin de
+      l'URL. Quand celle-ci contient des paramètres de suivi, la « fin » n'est
+      plus <code>.jpg</code> mais tout ce tas.</p>
+    <p><b>Correction :</b> lire les <b>premiers octets du fichier</b> et en
+      déduire le format réel — JPEG, PNG ou WebP ont chacun une signature
+      reconnaissable.</p>
+    <div class="lecon"><b>Leçon :</b> le vrai type d'un fichier est dans son
+      contenu, pas dans son nom.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot collecte">Collecte</span>Le tri automatique laisse passer une capture d'écran</summary>
+  <div class="corps">
+    <div class="sympt">zlj_0xx.png — capture d'écran du terminal du logiciel « Zellij »
+(gestionnaire de fenêtres), retenue par tous les filtres</div>
+    <p class="pourquoi"><b>Pourquoi :</b> un logiciel libre s'appelle
+      « Zellij ». Titre pertinent, format carré, licence libre : notre score de
+      pertinence n'avait aucune raison de la rejeter. On a aussi vu passer des
+      panoramas, des appartements à Détroit et de la poterie.</p>
+    <p><b>Correction :</b> un score de pertinence (mots-clés forts, utiles, à
+      éviter, et rapport largeur/hauteur) <b>puis</b> une relecture humaine de
+      dix minutes avec une planche-contact numérotée.</p>
+    <div class="lecon"><b>Leçon :</b> un filtre automatique dégrossit, il ne
+      décide pas. C'est l'un des points qu'on assume dans le rapport plutôt que
+      de le passer sous silence.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot donnees">Données</span>Toutes les légendes disaient « grey, beige, brown »</summary>
+  <div class="corps">
+    <div class="sympt">zlj_017.jpg → "grey, beige and brown tilework"
+zlj_038.jpg → "grey, beige and brown tilework"
+zlj_054.jpg → "beige, grey and brown tilework"</div>
+    <p class="pourquoi"><b>Pourquoi :</b> l'extraction des couleurs dominantes
+      comptait les pixels. Or sur une photo de panneau, le mortier blanc-gris et
+      les joints occupent plus de surface que les tesselles colorées. Les
+      légendes décrivaient donc le mortier, pas le zellige.</p>
+    <p><b>Correction :</b> pondérer les couleurs par leur <b>saturation</b>,
+      pour que le bleu vif pèse plus que le gris neutre à surface égale.</p>
+    <div class="lecon"><b>Leçon :</b> « dominant » n'est pas « le plus
+      fréquent ». Il faut définir ce qui compte avant de compter.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot depot">Dépôt</span><code>metadata.jsonl</code> absent du dépôt</summary>
+  <div class="corps">
+    <div class="sympt">git status → rien à valider
+ls data/processed/train/metadata.jsonl → le fichier existe pourtant</div>
+    <p class="pourquoi"><b>Pourquoi :</b> la règle <code>.gitignore</code>
+      excluait tout <code>data/processed/</code> pour éviter de versionner les
+      images. Elle emportait aussi les légendes, qui sont du texte — et qui sont
+      <b>indispensables</b> pour reconstruire le jeu de données.</p>
+    <p><b>Correction :</b> n'ignorer que les extensions d'images sous ce
+      dossier, pas le dossier entier.</p>
+    <div class="lecon"><b>Leçon :</b> après avoir écrit une règle
+      <code>.gitignore</code>, vérifier ce qu'elle attrape avec
+      <code>git check-ignore -v &lt;fichier&gt;</code>.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot donnees">Données</span>Cascade silencieuse sur un jeu vide</summary>
+  <div class="corps">
+    <div class="sympt">[info] 0 images traitées
+[info] 0 légendes écrites
+[info] entraînement démarré…   ← et ça continuait !</div>
+    <p class="pourquoi"><b>Pourquoi :</b> quand la collecte échouait, les
+      scripts suivants ne trouvaient rien mais se terminaient « normalement ».
+      L'erreur n'apparaissait que bien plus tard, loin de sa cause.</p>
+    <p><b>Correction :</b> <code>sys.exit()</code> avec un message explicite dès
+      qu'un script n'a rien à traiter, chaînage par <code>&amp;&amp;</code> dans
+      les notebooks, et des <code>assert</code> sur le nombre d'images.</p>
+    <div class="lecon"><b>Leçon :</b> <b>échouer tôt et bruyamment.</b> Un
+      script qui ne fait rien doit le dire et s'arrêter, pas laisser la chaîne
+      continuer dans le vide.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot train">Entraînement</span><code>Found an incompatible version of torchao</code></summary>
+  <div class="corps">
+    <div class="sympt">ImportError: Found an incompatible version of torchao.
+Found version 0.10.0, but only versions above 0.16.0 are supported</div>
+    <p class="pourquoi"><b>Pourquoi :</b> Colab préinstalle <code>torchao</code>
+      en version 0.10. La bibliothèque <code>peft</code>, qui branche la LoRA,
+      exige 0.16 ou plus — et lève l'erreur au moment du branchement, même si on
+      n'utilise pas torchao du tout.</p>
+    <p><b>Correction :</b> deux filets. <code>pip uninstall -y torchao</code> en
+      tête de chaque notebook, et une fonction
+      <code>neutraliser_torchao()</code> qui désamorce la vérification si le
+      paquet est quand même présent.</p>
+    <div class="lecon"><b>Leçon :</b> sur Colab, l'environnement préinstallé
+      change sans prévenir. Ce qui marchait la semaine dernière peut casser
+      aujourd'hui.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot mesure">Mesures</span><code>'BaseModelOutputWithPooling' object has no attribute 'norm'</code></summary>
+  <div class="corps">
+    <div class="sympt">AttributeError: 'BaseModelOutputWithPooling' object has no attribute 'norm'</div>
+    <p class="pourquoi"><b>Pourquoi :</b> on récupérait les vecteurs CLIP par un
+      chemin qui a changé entre deux versions de <code>transformers</code>.</p>
+    <p><b>Correction :</b> passer explicitement par
+      <code>vision_model</code> → <code>visual_projection</code> pour les
+      images, et <code>text_model</code> → <code>text_projection</code> pour le
+      texte, avec un repli sur <code>pooler_output</code> pour DINOv2. Et
+      ajouter un <b>auto-test</b> : le module vérifie sur des images rouge,
+      bleue et damier que les dimensions sont correctes.</p>
+    <div class="lecon"><b>Leçon :</b> un module de mesure doit pouvoir se tester
+      tout seul. <code>python src/metrics.py</code> vérifie qu'il fonctionne
+      avant qu'on lui confie des chiffres de rapport.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot colab">Colab</span>Le dépôt renvoie 404 depuis Colab</summary>
+  <div class="corps">
+    <div class="sympt">remote: Repository not found.
+fatal: repository 'https://github.com/HatimTj/lora-zellige-patrimoine.git/' not found</div>
+    <p class="pourquoi"><b>Pourquoi :</b> le dépôt était en <b>privé</b>. Colab
+      clone sans authentification, donc il ne voyait rien.</p>
+    <p><b>Correction :</b> rendre le dépôt public — ce que le sujet demande de
+      toute façon, puisqu'il sert de carnet de bord consultable.</p>
+    <div class="lecon"><b>Leçon :</b> « 404 » sur un dépôt qui existe veut
+      presque toujours dire « privé », pas « absent ».</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot colab">Colab</span><code>files.upload()</code> bloque « Tout exécuter »</summary>
+  <div class="corps">
+    <div class="sympt">La cellule attend indéfiniment un clic sur « Choisir les fichiers ».
+L'exécution complète du notebook ne peut pas aboutir sans surveillance.</div>
+    <p class="pourquoi"><b>Pourquoi :</b> <code>files.upload()</code> est un
+      composant interactif. Il attend un humain, donc il casse toute exécution
+      automatique.</p>
+    <p><b>Correction :</b> la cellule <b>cherche l'archive toute seule</b> dans
+      <code>/content</code> et à la racine du projet, et ne retombe sur le
+      téléversement interactif qu'en dernier recours.</p>
+    <div class="lecon"><b>Leçon :</b> dans un notebook censé tourner d'un bout à
+      l'autre, aucun composant ne doit attendre un clic.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot colab">Colab</span><code>FileNotFoundError: results/baseline/D1_s1234.png</code></summary>
+  <div class="corps">
+    <div class="sympt">FileNotFoundError: [Errno 2] No such file or directory:
+'results/baseline/D1_s1234.png'</div>
+    <p class="pourquoi"><b>Pourquoi :</b> les images ne sont pas versionnées
+      dans Git — c'est volontaire. Mais une figure comparative avait besoin des
+      images de la baseline, qui n'existaient plus dans la nouvelle session.</p>
+    <p><b>Correction :</b> le notebook détecte leur absence et les
+      <b>régénère</b>. Comme les graines sont figées, les images reproduites sont
+      identiques aux originales : les mesures déjà enregistrées restent valables.</p>
+    <div class="lecon"><b>Leçon :</b> c'est le bénéfice caché des graines
+      figées — on peut jeter les images, elles sont récupérables à l'identique.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot depot">Git</span><code>! [rejected] main -&gt; main (fetch first)</code></summary>
+  <div class="corps">
+    <div class="sympt">! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/...'</div>
+    <p class="pourquoi"><b>Pourquoi :</b> le dépôt distant avait avancé — on
+      avait validé quelque chose depuis le Mac — pendant que Colab travaillait
+      sur une version plus ancienne.</p>
+    <p><b>Correction :</b> <code>git pull --rebase</code> avant chaque
+      <code>git push</code> dans les cellules de sauvegarde.</p>
+    <div class="lecon"><b>Leçon :</b> travailler à deux endroits sur le même
+      dépôt impose de récupérer avant d'envoyer, systématiquement.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot depot">Git</span><code>cannot pull with rebase: You have unstaged changes</code></summary>
+  <div class="corps">
+    <div class="sympt">error: cannot pull with rebase: You have unstaged changes.
+error: Please commit or stash them.</div>
+    <p class="pourquoi"><b>Pourquoi :</b> un fichier généré
+      (<code>manifeste.json</code>) avait été réécrit par un script avec un
+      horodatage différent. Git le voyait comme modifié, ce qui bloquait le
+      rebase.</p>
+    <p><b>Correction :</b> <code>git checkout -- &lt;fichier&gt;</code> pour
+      abandonner cette modification sans intérêt, puis reprendre.</p>
+    <div class="lecon"><b>Leçon :</b> un fichier régénéré à chaque exécution
+      pollue l'état Git. Soit on l'ignore, soit on accepte de l'écraser.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot mesure">Figures</span>Une courbe tracée sur 10 points au lieu de 4</summary>
+  <div class="corps">
+    <div class="sympt">figure « effet du nombre de pas » : 10 points tracés,
+dont des configurations d'intensité et de rang</div>
+    <p class="pourquoi"><b>Pourquoi :</b> le filtre sélectionnait les lignes
+      dont le nom <i>contenait</i> un motif, au lieu de celles dont le nom
+      <i>correspondait exactement</i>. Les configurations d'intensité et de rang
+      passaient à travers.</p>
+    <p><b>Correction :</b> une correspondance exacte
+      (<code>str.fullmatch</code>) sur le nom de la configuration.</p>
+    <div class="lecon"><b>Leçon :</b> toujours regarder la figure produite. Le
+      code ne plantait pas — la courbe était simplement fausse.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot mesure">Mesures</span>La fausse alerte sur le curseur d'intensité</summary>
+  <div class="corps">
+    <div class="sympt">intensité 0,25 → style 0,2745
+intensité 0,50 → style 0,2941
+intensité 0,75 → style 0,2735   ← ça redescend ?
+intensité 1,00 → style 0,3386   ← et ça saute d'un coup ?</div>
+    <p class="pourquoi"><b>Ce qu'on a cru :</b> la courbe en palier ressemblait
+      à un réglage qui ne s'appliquait pas. On soupçonnait une API dépréciée de
+      <code>diffusers</code> acceptée sans effet.</p>
+    <p><b>Ce qui était vrai :</b> on a relancé tout le balayage par une
+      <b>autre voie de l'API</b> — et les chiffres sont revenus
+      <b>identiques au centième</b>. Le réglage fonctionnait depuis le début. Le
+      palier est un vrai <b>effet de seuil</b> : la diversité, elle, décroît
+      parfaitement dès 0,25, ce qui prouve que la LoRA agissait bien.</p>
+    <p><b>Ce qu'on en a gardé :</b> un <b>test automatique</b> — à l'intensité 0,
+      l'image produite doit reproduire le modèle d'origine au pixel près, sinon
+      le notebook s'arrête.</p>
+    <div class="lecon"><b>Leçon :</b> la plus instructive du projet. Un résultat
+      surprenant n'est pas forcément un bug. Vérifier par un chemin indépendant
+      avant de conclure — et garder le garde-fou même quand l'alerte était
+      fausse. 26 minutes de GPU « perdues » ont en réalité <b>validé</b> le
+      résultat par une seconde voie.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot colab">Colab</span><code>echec (code 1) : evaluate.py --dossier results/r8_1000pas</code></summary>
+  <div class="corps">
+    <div class="sympt">AssertionError: echec (code 1) : python src/evaluate.py
+--dossier results/r8_1000pas --nom intensite_1.00 --rang 8 --pas 1000</div>
+    <p class="pourquoi"><b>Pourquoi :</b> pour gagner 4 minutes, une cellule
+      réutilisait les images produites par une section précédente. Or on avait
+      justement conseillé de <b>sauter cette section</b>, déjà validée. Le
+      dossier existait (ses fichiers JSON sont versionnés) mais était vide
+      d'images.</p>
+    <p><b>Correction :</b> la cellule teste la présence des images et les génère
+      si besoin. Et <code>evaluate.py</code> compare désormais le manifeste au
+      contenu réel du dossier, avec un message explicite.</p>
+    <div class="lecon"><b>Leçon :</b> une optimisation qui suppose qu'une étape
+      précédente a tourné doit <b>vérifier</b> cette supposition. Sinon elle
+      casse exactement quand on suit le conseil de sauter l'étape.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot colab">Colab</span><code>FileNotFoundError: results/r8_1000pas/D1_s1234.png</code> (la planche)</summary>
+  <div class="corps">
+    <div class="sympt">FileNotFoundError: [Errno 2] No such file or directory:
+'results/r8_1000pas/D1_s1234.png'</div>
+    <p class="pourquoi"><b>Pourquoi :</b> exactement la même cause que
+      l'erreur précédente, à un autre endroit du notebook. On avait corrigé un
+      symptôme sans chercher les autres occurrences.</p>
+    <p><b>Correction :</b> la fonction cherche maintenant parmi deux dossiers
+      possibles celui qui contient réellement les images. Et on a <b>balayé tout
+      le notebook</b> pour vérifier qu'aucune autre cellule ne dépendait
+      d'images produites par une section sautable.</p>
+    <div class="lecon"><b>Leçon :</b> après avoir corrigé un bug, chercher le
+      même motif ailleurs. Une cause unique produit souvent plusieurs
+      symptômes.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot livrable">Démo</span>Gradio 6 casse le code écrit pour Gradio 5</summary>
+  <div class="corps">
+    <div class="sympt">UserWarning: The parameters have been moved from the Blocks
+constructor to the launch() method in Gradio 6.0: theme, css
+
+TypeError: Image.__init__() got an unexpected keyword argument 'show_download_button'</div>
+    <p class="pourquoi"><b>Pourquoi :</b> Gradio 6 a déplacé <code>theme</code>
+      et <code>css</code> du constructeur vers <code>launch()</code>, et
+      supprimé <code>show_download_button</code>. Colab installe la dernière
+      version disponible le jour où on exécute.</p>
+    <p><b>Correction :</b> détecter la version majeure et s'adapter, plutôt que
+      de parier sur ce que Colab installera le jour de la soutenance. Testé
+      réellement sur <b>Gradio 5.50 et 6.32</b>.</p>
+    <div class="lecon"><b>Leçon :</b> pour une démo qu'on présentera dans
+      quelques semaines, l'adaptation vaut mieux que l'épinglage d'une
+      version.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot livrable">Figures</span>Trois étiquettes empilées au même endroit</summary>
+  <div class="corps">
+    <div class="sympt">figure du compromis : « lora_r8_1000pas », « r8_1000pas » et
+« intensite_1.00 » écrites par-dessus les unes les autres</div>
+    <p class="pourquoi"><b>Pourquoi :</b> deux choses. Trois lignes de
+      <code>results.csv</code> désignent la <b>même configuration</b> mesurée
+      sous trois noms, donc trois points au même endroit. Et les étiquettes
+      étaient posées à décalage fixe, sans vérifier si la place était libre.</p>
+    <p><b>Correction :</b> regrouper les points identiques sous un nom unique,
+      et pour chaque étiquette essayer <b>huit positions candidates</b> en
+      retenant la première qui ne heurte aucune autre.</p>
+    <div class="lecon"><b>Leçon :</b> une figure de rapport se regarde avant
+      d'être livrée. Celle-ci ne plantait pas, elle était juste illisible.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot livrable">Rapport</span>13 pages au lieu de 8</summary>
+  <div class="corps">
+    <div class="sympt">rapport.pdf : 13 pages
+page 4 : 392 caractères   ← quasiment vide
+page 6 : 1024 caractères</div>
+    <p class="pourquoi"><b>Pourquoi :</b> des sauts de page forcés avant
+      certaines sections laissaient des pages à moitié vides, et les figures
+      n'avaient aucune limite de hauteur — chacune occupait la moitié d'une
+      page.</p>
+    <p><b>Correction :</b> retirer les sauts forcés, plafonner la hauteur des
+      figures, resserrer l'interligne. Résultat : 8 pages de contenu, dans la
+      fourchette demandée.</p>
+    <div class="lecon"><b>Leçon :</b> produire réellement le PDF et compter les
+      pages, plutôt que d'estimer à vue.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot livrable">Rapport</span>Du code coupé par la césure automatique</summary>
+  <div class="corps">
+    <div class="sympt">dans le PDF : « cross_attention_k-
+wargs »</div>
+    <p class="pourquoi"><b>Pourquoi :</b> la césure automatique, activée pour le
+      texte justifié, s'appliquait aussi aux noms de code.</p>
+    <p><b>Correction :</b> <code>hyphens: none</code> et
+      <code>white-space: nowrap</code> sur les éléments de code.</p>
+    <div class="lecon"><b>Leçon :</b> un nom de fonction coupé en deux devient
+      faux. La typographie n'est pas de la décoration.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot depot">Sécurité</span>Un jeton GitHub collé en clair</summary>
+  <div class="corps">
+    <div class="sympt">Un jeton d'accès personnel GitHub est apparu en clair
+dans un échange, puis dans la sortie d'une cellule Colab.</div>
+    <p class="pourquoi"><b>Pourquoi :</b> pour pousser depuis Colab, il faut
+      s'authentifier. Le réflexe est de coller le jeton dans la cellule — mais
+      <b>la sortie d'une cellule Colab peut être enregistrée dans le notebook</b>
+      et partir dans Git.</p>
+    <p><b>Correction :</b> le jeton passe par <code>userdata.get()</code>, le
+      coffre de Colab, et n'apparaît jamais dans le code. Vérification faite :
+      aucun jeton dans les fichiers suivis, aucun dans l'historique complet,
+      et <b>aucune sortie de cellule enregistrée</b> dans les six notebooks.</p>
+    <div class="lecon"><b>Leçon :</b> un jeton exposé doit être révoqué, pas
+      surveillé. Et ce n'est pas une question de confiance envers une personne :
+      c'est que le secret est passé par un fichier qu'on ne contrôle plus.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot depot">Dépôt</span>Une vidéo de 89 Mo dans le dossier du projet</summary>
+  <div class="corps">
+    <div class="sympt">Enregistrement de l'écran .mov — 88 887 232 octets, non suivi</div>
+    <p class="pourquoi"><b>Pourquoi :</b> l'enregistrement d'écran de la démo a
+      été déposé dans le dossier du projet. Un <code>git add -A</code> l'aurait
+      emporté — et GitHub n'accepte pas confortablement ce poids.</p>
+    <p><b>Correction :</b> <code>*.mov</code>, <code>*.mp4</code> et
+      <code>*.webm</code> ajoutés au <code>.gitignore</code>. La vidéo se dépose
+      sur Drive, et le lien va dans le rapport.</p>
+    <div class="lecon"><b>Leçon :</b> le sujet le dit explicitement — pas de
+      gros fichiers dans Git. Mieux vaut l'empêcher que s'en souvenir.</div>
+  </div>
+</details>
+
+<details class="erreur">
+  <summary><span class="lot mesure">Outils</span>Notre propre vérificateur s'est trompé deux fois</summary>
+  <div class="corps">
+    <div class="sympt">verifier_notebooks.py : « 3 cellules cassées »
+…alors que les notebooks s'exécutaient parfaitement.</div>
+    <p class="pourquoi"><b>Pourquoi :</b> l'outil remplace les lignes magiques
+      de Colab (<code>!pip</code>, <code>%cd</code>) par du Python valide avant
+      de vérifier la syntaxe. Il gérait mal les lignes de continuation, puis
+      l'indentation — d'où des erreurs inventées.</p>
+    <p><b>Correction :</b> remplacer par <code>pass</code> en conservant
+      l'indentation d'origine, et vider les lignes de continuation.</p>
+    <div class="lecon"><b>Leçon :</b> un outil de vérification est lui aussi du
+      code, avec ses propres bugs. Quand il contredit l'observation directe,
+      c'est peut-être lui qui a tort.</div>
+  </div>
+</details>
+
+</div>
+
+<!-- ================================================================= -->
+<h2 id="questions">Questions &amp; réponses</h2>
+
+<p>
+Trente-deux questions qu'un jury peut poser, ou que tes amis poseront.
+Réponses courtes, avec le chiffre quand il y en a un.
+</p>
+
+<div class="recherche">
+  <input type="search" id="chercheQ" placeholder="Filtrer : tape « rang », « licence », « FID »…">
+</div>
+<div class="compteur" id="compteurQ"></div>
+
+<div id="listeQ">
+
+<h3>Sur la méthode</h3>
+
+<details>
+  <summary>Pourquoi LoRA et pas un réentraînement complet ?</summary>
+  <div class="corps">
+    <p>Trois raisons qui se cumulent : la mémoire (il faudrait des dizaines de
+    Go, on en a 12), la taille du résultat (1,6 Go contre 6,1 Mo), et l'oubli
+    (avec 29 images, le modèle ne saurait plus rien faire d'autre). La LoRA
+    donne <b>0,19 % de paramètres entraînés</b> pour <b>+23,5 % de style</b>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Qu'est-ce que le rang, concrètement ?</summary>
+  <div class="corps">
+    <p>Le nombre de dimensions sur lesquelles on comprime la correction. Avec un
+    rang 8, la matrice <code>A</code> réduit l'information à 8 dimensions et
+    <code>B</code> la redéploie. Plus le rang est grand, plus la LoRA a de
+    capacité — et plus elle a de place pour mémoriser.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Pourquoi alpha égal au rang ?</summary>
+  <div class="corps">
+    <p>Dans PEFT, l'échelle appliquée vaut <code>alpha / rang</code>. Prendre
+    alpha = rang donne une échelle de 1, c'est-à-dire le <b>choix neutre</b> :
+    quand on change le rang dans notre balayage, on ne change pas en même temps
+    la force effective de l'adaptation. Sinon on mesurerait deux effets mêlés.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Pourquoi un mot inventé comme <code>zlj_style</code> ?</summary>
+  <div class="corps">
+    <p>« zellige » aurait mélangé ce que le modèle croit déjà savoir avec ce
+    qu'on lui enseigne. « tiles » aurait abîmé ce mot pour tous les autres
+    usages. Un mot vide de sens donne un point d'accroche propre. <b>Et on l'a
+    vérifié :</b> sans le mot, le CLIPScore hors domaine ne perd que 0,20 — le
+    modèle est intact.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Quelle différence avec DreamBooth ou l'inversion textuelle ?</summary>
+  <div class="corps">
+    <p>L'<b>inversion textuelle</b> n'apprend qu'un vecteur de mot, sans toucher
+    au générateur : très léger, mais capacité limitée. <b>DreamBooth</b>
+    réentraîne le modèle entier : puissant, mais 1,6 Go et beaucoup de mémoire.
+    La <b>LoRA</b> est entre les deux — elle modifie le générateur, mais par une
+    correction de faible rang. C'est le compromis qui tient dans 12 Go.</p>
+  </div>
+</details>
+
+<h3>Sur les données</h3>
+
+<details>
+  <summary>Pourquoi seulement 29 images ?</summary>
+  <div class="corps">
+    <p>Le sujet demande 20 à 50 images autorisées et bien légendées, avec 5 à 10
+    réservées. On a visé la qualité du tri et des légendes plutôt que la
+    quantité. Les licences libres et vérifiables sur le zellige ne sont pas si
+    nombreuses, et chaque image a été relue une par une.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Pourquoi ne pas avoir pris le jeu Kaggle de 1 560 images ?</summary>
+  <div class="corps">
+    <p>Celui-là est recommandé pour le <b>projet 1</b> (inpainting), pas pour le
+    nôtre. Le projet 5 demande explicitement « 20 à 50 images autorisées », avec
+    licence compatible et légende courte pour chacune. Et sur Kaggle, la
+    traçabilité des licences image par image n'est pas garantie — or c'est un
+    point sur lequel nous sommes évalués.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Qu'avez-vous vérifié exactement sur les licences ?</summary>
+  <div class="corps">
+    <p>Pour chaque image : l'auteur, la licence et l'URL, enregistrés dans
+    <code>data/licenses.csv</code>. Acceptées : CC0, domaine public, CC BY, CC
+    BY-SA. Le fichier conserve aussi les <b>330 images rejetées avec leur
+    motif</b>, ce qui rend le tri vérifiable plutôt que déclaratif.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Pourquoi écarter NC et ND ?</summary>
+  <div class="corps">
+    <p><b>ND</b> interdit les modifications — or entraîner un modèle sur une
+    image <i>est</i> une modification. <b>NC</b> interdit l'usage commercial, ce
+    qui rendrait le résultat inutilisable au-delà du cadre scolaire et
+    impossible à partager proprement. On préfère un jeu plus petit mais sans
+    ambiguïté.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Pourquoi les légendes ne décrivent-elles pas le style ?</summary>
+  <div class="corps">
+    <p>Parce que ce qui est <b>constant dans les images et absent des
+    légendes</b> est exactement ce que le token absorbe. Si toutes les légendes
+    disaient « mosaïque géométrique », le style se rattacherait à ces mots-là
+    plutôt qu'à <code>zlj_style</code>. On ne décrit donc que ce qui varie : la
+    couleur et la composition.</p>
+  </div>
+</details>
+
+<h3>Sur l'évaluation</h3>
+
+<details>
+  <summary>Pourquoi pas de FID ?</summary>
+  <div class="corps">
+    <p>Le FID est <b>biaisé en dessous de quelques milliers d'images de
+    référence</b>. Nous en avons 29. Le publier donnerait un chiffre d'apparence
+    rigoureuse mais vide de sens. C'est un choix assumé et écrit dans le
+    rapport, pas un oubli.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Pourquoi DINOv2 plutôt que CLIP pour le style ?</summary>
+  <div class="corps">
+    <p>Parce que nous l'avons mesuré. Entre la baseline et la LoRA, CLIP-I bouge
+    de <b>+3,5 %</b> et DINOv2 de <b>+23,5 %</b>. CLIP est entraîné à relier
+    images et mots, il voit donc le contenu ; DINOv2 n'a jamais vu de texte, il
+    voit la texture et la géométrie. Pour un transfert de style, CLIP-I sature.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Pourquoi figer les prompts et les graines avant d'entraîner ?</summary>
+  <div class="corps">
+    <p>Pour s'interdire de choisir après coup ce qui nous arrange. Si on
+    sélectionne les prompts en ayant vu ce que la LoRA réussit, on produit une
+    démonstration, pas une mesure. Les 10 prompts et 4 graines sont datés dans
+    <code>configs/eval_prompts.yaml</code>, et chaque configuration est jugée
+    sur les <b>mêmes 40 images</b>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Et si le jury demande d'ajouter un prompt ?</summary>
+  <div class="corps">
+    <p>On peut, mais il faudrait alors <b>refaire toutes les mesures</b> et le
+    dire dans le rapport. C'est écrit en tête du fichier de prompts. Ajouter un
+    prompt après coup casserait la comparabilité entre configurations.</p>
+  </div>
+</details>
+
+<h3>Sur les résultats</h3>
+
+<details>
+  <summary>Comment savez-vous que le modèle ne recopie pas ?</summary>
+  <div class="corps">
+    <p>On ne décrète pas le seuil, on le <b>mesure</b>. Les 8 images du holdout
+    sont de vraies photos de zellige jamais vues par le modèle ; leur
+    ressemblance maximale au jeu d'entraînement est de <b>0,908</b>, et c'est la
+    ressemblance normale entre deux photos indépendantes du même artisanat.
+    <b>Aucune de nos 28 images d'évaluation n'atteint ce seuil</b>, et leur
+    distribution est même plus basse que celle du holdout.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Mais la mémorisation passe de 0,737 à 0,845. Ce n'est pas inquiétant ?</summary>
+  <div class="corps">
+    <p>Elle monte, oui, et nous le publions. Mais 0,845 reste <b>sous le seuil de
+    0,908</b>. Et l'inspection visuelle montre que les paires les plus proches
+    partagent la <b>composition</b> — une rosace, un éclatement en étoile — mais
+    ni la palette, ni le nombre de branches, ni le détail des tesselles. La
+    géométrie islamique repose sur un répertoire fini de symétries : deux
+    zelliges authentiques et sans rapport se ressemblent déjà beaucoup.</p>
+  </div>
+</details>
+
+<details>
+  <summary>8 images de holdout, ce n'est pas un peu court pour un seuil ?</summary>
+  <div class="corps">
+    <p>Si, et nous l'écrivons dans les limites. C'est la même rareté de données
+    qui nous interdit le FID. C'est pourquoi nous donnons aussi la lecture
+    sévère : à la <b>moyenne</b> du holdout (0,722) plutôt qu'à son maximum,
+    3 images sur 28 dépassent, soit 10,7 %. Et c'est pourquoi la figure des
+    paires existe : le chiffre seul ne tranche pas.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Pourquoi le style ne monte-t-il pas régulièrement avec l'intensité ?</summary>
+  <div class="corps">
+    <p>C'est un <b>effet de seuil</b>, et nous l'avons vérifié par deux chemins
+    de code indépendants qui donnent les mêmes chiffres. En dessous de 1,0, la
+    LoRA agit déjà — la diversité décroît parfaitement de 0,646 à 0,597 — mais
+    elle modifie la palette et la texture sans imposer la géométrie.
+    Visuellement : un grand carreau peint jusqu'à 0,75, une mosaïque de tesselles
+    à partir de 1,00.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Que se passe-t-il au-dessus de 1,0 ?</summary>
+  <div class="corps">
+    <p>À 1,25 le style gagne encore un peu (0,346 contre 0,339) mais la
+    diversité tombe à 0,572, son plus bas. On sort du domaine d'entraînement de
+    la LoRA : les motifs se durcissent et des artefacts apparaissent. Nous
+    recommandons <b>1,0</b>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Quel rang faut-il choisir ?</summary>
+  <div class="corps">
+    <p><b>8</b>, pour notre cas. Attention : notre balayage de rang tourne à
+    800 passages, soit en dessous du seuil où le style apparaît — il ne permet
+    donc <b>pas</b> de conclure sur le meilleur rang à convergence. Ce qu'on peut
+    dire : à budget égal et court, le rang 32 décolle le premier ; et le rang ne
+    coûte ni temps (9,5 à 9,7 min) ni mémoire (+0,05 Go), seulement de l'espace
+    disque.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Pourquoi avoir gardé 1000 pas si 500 suffisent ?</summary>
+  <div class="corps">
+    <p>Parce que les mesures de l'étape 3 — dont le résultat principal — avaient
+    été établies sur le modèle à 1000 pas, avant le balayage. Changer de modèle
+    de référence aurait imposé de tout recalculer. <b>La recommandation reste
+    500 pas</b>, et elle est écrite dans la fiche du modèle.</p>
+  </div>
+</details>
+
+<details>
+  <summary>La diversité baisse de 7,6 %. C'est grave ?</summary>
+  <div class="corps">
+    <p>C'est le coût normal de la spécialisation : un modèle concentré sur un
+    style se répète davantage. L'intérêt de l'avoir mesuré, c'est de pouvoir le
+    doser — à intensité 0,5 la diversité ne perd que 4,8 %. Nous publions ce
+    chiffre plutôt que de ne montrer que ce qui s'améliore.</p>
+  </div>
+</details>
+
+<h3>Sur la pratique</h3>
+
+<details>
+  <summary>Combien de temps de calcul en tout ?</summary>
+  <div class="corps">
+    <p><b>2 h 24 de GPU T4</b> pour le projet entier : 88 minutes
+    d'entraînement cumulées sur cinq configurations, 56 minutes de génération
+    pour les quinze configurations évaluées. Le détail est dans
+    <code>runs/*/entrainement.json</code> et <code>results/results.csv</code>.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Comment tenez-vous dans 12 Go de VRAM ?</summary>
+  <div class="corps">
+    <p>Pic mesuré : <b>4,66 Go</b>, donc on est large. Trois techniques : calcul
+    en <b>fp16</b> (demi-précision) avec les poids LoRA gardés en fp32,
+    optimiseur <b>AdamW en 8 bits</b> (bitsandbytes), et <b>gradient
+    checkpointing</b> — on recalcule certaines activations au lieu de les garder
+    en mémoire.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Pourquoi DPM-Solver++ et 30 étapes ?</summary>
+  <div class="corps">
+    <p>C'est un échantillonneur qui atteint en <b>30 étapes</b> une qualité pour
+    laquelle PNDM en demande 50. Comme on génère 40 images par configuration et
+    qu'on en a évalué quinze, cela représente des heures économisées — sur un
+    GPU gratuit qui peut couper à tout moment.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Pourquoi les images et les poids ne sont-ils pas dans Git ?</summary>
+  <div class="corps">
+    <p>Le sujet l'interdit, et c'est une bonne contrainte. À la place, le dépôt
+    contient de quoi <b>tout reconstruire à l'identique</b> :
+    <code>licenses.csv</code>, <code>selection.txt</code>,
+    <code>compositions.csv</code> et <code>metadata.jsonl</code>. Comme les
+    graines sont figées, les images régénérées sont les mêmes au pixel près.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Comment reproduire vos résultats ?</summary>
+  <div class="corps">
+    <pre><code>git clone https://github.com/HatimTj/lora-zellige-patrimoine.git</code></pre>
+    <p>Puis les notebooks 01 à 07, dans l'ordre, sur Colab avec un GPU T4 :
+    reconstruction du jeu de données, baseline, entraînement, balayages,
+    surapprentissage, démonstration.</p>
+  </div>
+</details>
+
+<h3>Sur la portée et l'éthique</h3>
+
+<details>
+  <summary>Est-ce que ça marche sur d'autres styles ?</summary>
+  <div class="corps">
+    <p>La méthode, oui : rien dans notre chaîne n'est propre au zellige. Il
+    faudrait refaire la collecte, les légendes et surtout un nouveau holdout —
+    puisque c'est lui qui donne le seuil de recopie. Les réglages (rang 8,
+    500 pas, intensité 1,0) sont un point de départ raisonnable.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Est-ce que vous remplacez l'artisan ?</summary>
+  <div class="corps">
+    <p>Non, et c'est écrit dans la réflexion éthique. Le zellige est un
+    savoir-faire vivant, transmis par des <i>maalems</i>. Un modèle qui en imite
+    la surface ne reproduit ni la géométrie sous-jacente exacte, ni les
+    contraintes du matériau et de la découpe. C'est un outil d'exploration
+    visuelle, et les images produites ne sont pas des relevés fidèles de
+    panneaux existants.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Quelles sont les limites que vous assumez ?</summary>
+  <div class="corps">
+    <ul>
+      <li>Le seuil de recopie repose sur <b>8 images</b> — c'est peu.</li>
+      <li>Le balayage du rang est <b>sous-entraîné</b> et ne conclut pas.</li>
+      <li>29 photographies ne couvrent qu'une facette du répertoire : dominante
+          bleu et blanc, panneaux plutôt que fontaines ou sols.</li>
+      <li>La diversité baisse de 7,6 %.</li>
+    </ul>
+  </div>
+</details>
+
+<details>
+  <summary>Qu'est-ce que vous feriez avec plus de temps ?</summary>
+  <div class="corps">
+    <p>Trois choses, par ordre d'intérêt : relancer le <b>balayage du rang à
+    1000 pas</b> pour qu'il conclue vraiment (40 minutes) ; élargir le holdout
+    pour asseoir le seuil de recopie ; et diversifier le jeu — des fontaines,
+    des sols, d'autres palettes que le bleu et blanc.</p>
+  </div>
+</details>
+
+<details>
+  <summary>Qui a fait quoi dans l'équipe ?</summary>
+  <div class="corps">
+    <p><b>Hatim Tajimi</b> — cadrage, collecte et licences, légendage, dépôt et
+    intégration. <b>Houssam El Moutaqui</b> — entraînement, balayages rang et
+    pas, analyse du surapprentissage. <b>Saad Belekbira</b> — métriques et
+    protocole, figures et tableaux, démonstration Gradio.</p>
+    <p>Chacun doit pouvoir répondre sur <b>l'ensemble</b> du projet : le jury
+    vérifie souvent ce point par ses questions.</p>
+  </div>
+</details>
+
+</div>
+
+<!-- ================================================================= -->
+<h2 id="depot">Le dépôt, fichier par fichier</h2>
+
+<p>
+3 460 lignes de Python, 37 commits, 7 fichiers de configuration, 6 notebooks.
+Voilà à quoi sert chaque chose.
+</p>
+
+<h3>Le code — <span class="chemin">src/</span></h3>
+<div class="tableau">
+<table>
+  <thead><tr><th>Fichier</th><th>Lignes</th><th style="text-align:left">À quoi il sert</th></tr></thead>
+  <tbody>
+    <tr><td><code>common.py</code></td><td>248</td><td style="text-align:left">socle partagé : config, graines, mesure VRAM et temps</td></tr>
+    <tr><td><code>collect_wikimedia.py</code></td><td>568</td><td style="text-align:left">collecte, licences, score de pertinence, mode reconstruction</td></tr>
+    <tr><td><code>prepare_data.py</code></td><td>207</td><td style="text-align:left">recadrage 512×512, dédoublonnage, découpage train/holdout</td></tr>
+    <tr><td><code>legender.py</code></td><td>232</td><td style="text-align:left">couleurs dominantes pondérées, écriture des légendes</td></tr>
+    <tr><td><code>metrics.py</code></td><td>216</td><td style="text-align:left">CLIPScore, CLIP-I, DINOv2, LPIPS — avec auto-test</td></tr>
+    <tr><td><code>train_lora.py</code></td><td>338</td><td style="text-align:left">entraînement, vérification des gradients, sauvegarde</td></tr>
+    <tr><td><code>generate.py</code></td><td>189</td><td style="text-align:left">génération, baseline et LoRA par le même code</td></tr>
+    <tr><td><code>evaluate.py</code></td><td>171</td><td style="text-align:left">agrège un dossier d'images en une ligne de results.csv</td></tr>
+    <tr><td><code>overfit_check.py</code></td><td>388</td><td style="text-align:left">seuil de recopie, plus proches voisins, hors domaine</td></tr>
+    <tr><td><code>figures.py</code></td><td>248</td><td style="text-align:left">les figures du rapport, à partir de results.csv seul</td></tr>
+    <tr><td><code>planche_contact.py</code></td><td>103</td><td style="text-align:left">planches numérotées pour le tri humain</td></tr>
+    <tr><td><code>verifier_notebooks.py</code></td><td>77</td><td style="text-align:left">contrôle de syntaxe des notebooks sans les exécuter</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="bloc">
+  <div class="bloc__eti">Un détail qui compte</div>
+  <code>generate.py</code> sert <b>à la fois</b> pour la baseline et pour chaque
+  LoRA. C'est volontaire : si la baseline et les LoRA étaient produites par deux
+  codes différents, une partie de l'écart mesuré viendrait du code et non du
+  modèle.
+</div>
+
+<h3>Les notebooks — <span class="chemin">notebooks/</span></h3>
+<ul>
+  <li><code>02_baseline.ipynb</code> — le modèle non modifié sur les 10 prompts</li>
+  <li><code>03_lora_train.ipynb</code> — l'entraînement, 49 minutes</li>
+  <li><code>04_balayages.ipynb</code> — pas et intensité</li>
+  <li><code>05_balayage_rang.ipynb</code> — rangs 4, 8, 16, 32</li>
+  <li><code>06_surapprentissage.ipynb</code> — le test de recopie</li>
+  <li><code>07_demo.ipynb</code> — lance la démo et donne le lien public</li>
+</ul>
+
+<h3>Le reste</h3>
+<ul>
+  <li><span class="chemin">configs/</span> — les paramètres de chaque
+      expérience, et les 10 prompts figés avec leur date de gel</li>
+  <li><span class="chemin">data/</span> — <code>licenses.csv</code> (367 lignes,
+      rejets compris), la sélection, les compositions écrites à la main</li>
+  <li><span class="chemin">results/</span> — <code>results.csv</code> (15
+      configurations), les figures, les JSON d'évaluation</li>
+  <li><span class="chemin">demo/</span> — l'interface Gradio</li>
+  <li><span class="chemin">report/</span> — rapport et soutenance, sources HTML
+      et PDF</li>
+  <li><span class="chemin">docs/</span> — fiche du modèle, éthique,
+      contributions, et ce guide</li>
+</ul>
+
+<!-- ================================================================= -->
+<h2 id="troisminutes">Tout réexpliquer en 3 minutes</h2>
+
+<p>Si tu dois raconter le projet à quelqu'un qui n'y connaît rien, suis ces six
+phrases dans l'ordre.</p>
+
+<div class="bloc vert">
+  <div class="bloc__eti">1 · Le problème</div>
+  « Stable Diffusion sait faire du carrelage, mais pas du zellige. Il a appris
+  sur le web anglophone, où notre patrimoine est peu représenté. »
+</div>
+
+<div class="bloc vert">
+  <div class="bloc__eti">2 · L'idée</div>
+  « On ne réentraîne pas les 860 millions de paramètres — impossible sur un GPU
+  gratuit. On gèle tout et on ajoute une petite correction : 1,59 million de
+  paramètres, 6 mégaoctets. »
+</div>
+
+<div class="bloc vert">
+  <div class="bloc__eti">3 · L'astuce</div>
+  « On invente un mot qui n'existe pas, <code>zlj_style</code>, pour que le style
+  s'accroche là et nulle part ailleurs. Et on ne décrit dans les légendes que ce
+  qui varie — jamais le style lui-même. »
+</div>
+
+<div class="bloc vert">
+  <div class="bloc__eti">4 · La rigueur</div>
+  « On a figé 10 prompts et 4 graines <b>avant</b> d'entraîner quoi que ce soit.
+  Comme ça on ne peut pas choisir après coup les images qui nous arrangent. »
+</div>
+
+<div class="bloc vert">
+  <div class="bloc__eti">5 · Le résultat</div>
+  « Le style gagne 23,5 %, l'obéissance au texte ne bouge pas, la diversité perd
+  7,6 % — et on publie ce coût au lieu de le cacher. »
+</div>
+
+<div class="bloc vert">
+  <div class="bloc__eti">6 · Le point fort</div>
+  « Avec 29 images, la vraie question c'est : est-ce qu'il a appris ou recopié ?
+  On n'a pas inventé un seuil. On l'a mesuré sur 8 photos de zellige que le
+  modèle n'a jamais vues. Aucune de nos images ne l'atteint. »
+</div>
+
+<div class="fin">
+  Guide généré à partir du dépôt
+  <span class="chemin">github.com/HatimTj/lora-zellige-patrimoine</span> —
+  tous les chiffres viennent de <code>results/results.csv</code>,
+  <code>results/surapprentissage.json</code> et
+  <code>runs/*/entrainement.json</code>.
+</div>
+
+</main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---- Thème clair / sombre, mémorisé par navigateur -------------------
+  var bascule = document.getElementById("bascule");
+  var racine = document.documentElement;
+  try {
+    var garde = localStorage.getItem("guide-theme");
+    if (garde) racine.setAttribute("data-theme", garde);
+  } catch (e) { /* navigation privée : on reste sur le thème système */ }
+
+  bascule.addEventListener("click", function () {
+    var sombreMaintenant =
+      racine.getAttribute("data-theme") === "dark" ||
+      (!racine.getAttribute("data-theme") &&
+       window.matchMedia("(prefers-color-scheme: dark)").matches);
+    var voulu = sombreMaintenant ? "light" : "dark";
+    racine.setAttribute("data-theme", voulu);
+    try { localStorage.setItem("guide-theme", voulu); } catch (e) {}
+  });
+
+  // ---- Surlignage de la section courante dans le sommaire ---------------
+  var liens = Array.prototype.slice.call(document.querySelectorAll("nav a"));
+  var cibles = liens
+    .map(function (a) { return document.getElementById(a.getAttribute("href").slice(1)); })
+    .filter(Boolean);
+
+  function majSommaire() {
+    var haut = window.scrollY + 90;
+    var courant = cibles[0];
+    for (var i = 0; i < cibles.length; i++) {
+      if (cibles[i].offsetTop <= haut) courant = cibles[i];
+    }
+    liens.forEach(function (a) {
+      a.classList.toggle("actif", a.getAttribute("href") === "#" + courant.id);
+    });
+  }
+  var enAttente = false;
+  window.addEventListener("scroll", function () {
+    if (enAttente) return;
+    enAttente = true;
+    window.requestAnimationFrame(function () { majSommaire(); enAttente = false; });
+  });
+  majSommaire();
+
+  // ---- Filtres de recherche --------------------------------------------
+  function brancherFiltre(champId, listeId, compteurId, nomPluriel) {
+    var champ = document.getElementById(champId);
+    var liste = document.getElementById(listeId);
+    var compteur = document.getElementById(compteurId);
+    if (!champ || !liste || !compteur) return;
+
+    var entrees = Array.prototype.slice.call(liste.querySelectorAll("details"));
+    // Les sous-titres h3 se cachent avec leur groupe quand il devient vide
+    var titres = Array.prototype.slice.call(liste.querySelectorAll("h3"));
+
+    function total() {
+      compteur.textContent = entrees.length + " " + nomPluriel + ".";
+    }
+
+    champ.addEventListener("input", function () {
+      var q = champ.value.trim().toLowerCase();
+      if (!q) {
+        entrees.forEach(function (d) { d.style.display = ""; d.open = false; });
+        titres.forEach(function (h) { h.style.display = ""; });
+        total();
+        return;
+      }
+      var vus = 0;
+      entrees.forEach(function (d) {
+        var ok = d.textContent.toLowerCase().indexOf(q) !== -1;
+        d.style.display = ok ? "" : "none";
+        d.open = ok && q.length > 2;
+        if (ok) vus++;
+      });
+      // Un titre de groupe ne reste visible que s'il precede un element visible
+      titres.forEach(function (h) {
+        var n = h.nextElementSibling, visible = false;
+        while (n && n.tagName !== "H3") {
+          if (n.tagName === "DETAILS" && n.style.display !== "none") { visible = true; break; }
+          n = n.nextElementSibling;
+        }
+        h.style.display = visible ? "" : "none";
+      });
+      compteur.textContent = vus === 0
+        ? "Aucun résultat pour « " + champ.value + " »."
+        : vus + " sur " + entrees.length + " " + nomPluriel + ".";
+    });
+
+    total();
+  }
+
+  brancherFiltre("chercheErr", "listeErr", "compteurErr", "erreurs recensées");
+  brancherFiltre("chercheQ", "listeQ", "compteurQ", "questions");
+})();
+</script>
+
+</body>
+</html>
