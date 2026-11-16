@@ -229,6 +229,46 @@ modèle de base produit déjà du carrelage bleu et blanc. Une colonne « qui
 ressemble à du zellige » ne prouve donc rien à elle seule ; c'est le passage du
 carreau peint à la mosaïque assemblée qui distingue la LoRA.
 
+### Rang de la LoRA (400 pas, accumulation 2, intensité 1,0)
+
+Coût d'abord :
+
+| rang | paramètres | % du U-Net | durée | VRAM | fichier | perte finale |
+|---|---|---|---|---|---|---|
+| 4 | 797 k | 0,09 % | 9,5 min | 4,65 Go | 3,1 Mo | 0,1345 |
+| 8 | 1,59 M | 0,19 % | 9,6 min | 4,66 Go | 6,1 Mo | 0,1334 |
+| 16 | 3,19 M | 0,37 % | 9,7 min | 4,67 Go | 12,2 Mo | 0,1356 |
+| 32 | 6,38 M | 0,74 % | 9,6 min | 4,70 Go | 24,4 Mo | 0,1361 |
+
+**Le rang ne coûte presque rien.** Multiplier les paramètres par huit ne change
+ni la durée (9,5 à 9,7 min) ni la mémoire (+0,05 Go). Le calcul est dominé par
+le U-Net gelé, que l'on traverse de toute façon ; les matrices LoRA sont du
+bruit à côté. Seul le fichier grossit, proportionnellement. La perte finale est
+plate (0,133 à 0,136) : aucun rang ne colle mieux aux données.
+
+Qualité ensuite :
+
+| rang | 4 | 8 | 16 | 32 |
+|---|---|---|---|---|
+| style DINOv2 | 0,274 | 0,277 | 0,278 | **0,303** |
+| mémorisation | 0,723 | 0,744 | 0,742 | 0,748 |
+| diversité | 0,617 | 0,614 | 0,612 | 0,619 |
+
+**Limite à bien lire.** Le budget de ce balayage (400 pas × accumulation 2 =
+800 passages) est plus court que le plus petit point du balayage des pas
+(250 pas × accumulation 4 = 1000 passages, style 0,285). Les quatre rangs sont
+donc mesurés *avant* le seuil où le style apparaît : trois d'entre eux sont au
+niveau de la baseline parce qu'aucun n'a eu le temps d'apprendre, pas parce que
+le rang serait sans effet.
+
+Ce qu'on peut affirmer : **à budget égal et court, le rang 32 décolle le
+premier.** Un rang plus grand converge plus vite par pas d'optimisation. Ce
+qu'on ne peut pas affirmer : quel rang gagne à convergence — il faudrait
+relancer les quatre à 1000 pas, soit 40 minutes de plus.
+
+Le modèle retenu reste le **rang 8 à 1000 pas** (style 0,339, 6 Mo), au-dessus
+de tout ce qui figure ici.
+
 ### Vérification du curseur
 
 La section 5 du notebook 04 génère une image à l'intensité 0,0 et la compare
@@ -246,8 +286,7 @@ ce qui confirme les deux mesures.
 - [x] **Étape 1** — Jeu de données : 367 candidats → 37 retenus → 29 + 8
 - [x] **Étape 2** — Baseline SD 1.5 mesurée : style DINOv2 = 0,274, prompt = 34,3
 - [x] **Étape 3** — LoRA rang 8, 1000 pas : style DINOv2 0,274 → 0,339 (+23,5 %)
-- [~] **Étape 4** — Balayages du nombre de pas et de l'intensité faits ;
-  balayage du rang à lancer (notebook 05)
+- [x] **Étape 4** — Balayages du nombre de pas, de l'intensité et du rang
 - [ ] **Étape 5** — Analyse du surapprentissage
 - [ ] **Étape 6** — Démo Gradio et vidéo
 - [ ] **Étape 7** — Rapport (6-8 p) et soutenance (10 min)
