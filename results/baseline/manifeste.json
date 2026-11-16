@@ -6,8 +6,8 @@
   "guidance": 7.5,
   "taille": 512,
   "n_images": 40,
-  "duree_totale_s": 214.284,
-  "duree_par_image_s": 5.357,
+  "duree_totale_s": 207.986,
+  "duree_par_image_s": 5.2,
   "vram_pic_go": 2.6132869720458984,
   "images": [
     {
